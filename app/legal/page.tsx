@@ -15,6 +15,7 @@ const RULE_IDS: RuleId[] = ["R1", "R2", "R3", "R4", "R5"];
 export default function LegalPage() {
   const minWages = Object.entries(MIN_WAGE_BY_YEAR)
     .map(([year, wage]) => ({ year: Number(year), wage }))
+    .filter((m) => m.year >= 2020) // 표는 2020년부터만 보여준다 (판정은 그 이전 연도 값도 쓴다)
     .sort((a, b) => b.year - a.year);
 
   return (
