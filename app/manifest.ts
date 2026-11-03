@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "페이체크",
     description: "알바 근로계약서를 사진으로 올리면 확인이 필요한 조항을 알려드려요.",
     lang: "ko",
-    start_url: "/",
+    start_url: "/check", // 홈 화면 아이콘은 랜딩을 건너뛰고 바로 앱으로
     display: "standalone",
     background_color: "#ffffff",
     theme_color: "#ffffff",

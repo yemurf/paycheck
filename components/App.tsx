@@ -58,6 +58,15 @@ export function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
+  // 랜딩 페이지의 "샘플로 체험하기"(/check?sample=1)로 들어오면 샘플을 올린 채 시작한다
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("sample") === "1") {
+      history.replaceState(history.state, "", "/check");
+      startSample();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 처음 한 번만
+  }, []);
+
   function onExtracted(contract: ContractExtraction) {
     // 분석 중에 뒤로가기로 업로드 화면을 떠났으면 결과로 끌고 가지 않는다
     if (stepRef.current !== "upload") return;
