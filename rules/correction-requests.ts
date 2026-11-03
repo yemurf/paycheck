@@ -1,0 +1,18 @@
+import type { RuleResult } from "./types";
+
+// F8: 사장님께 보낼 정정 요청 문장. AI 없이 고정 문구 (존댓말, 3문장 이내).
+// 숫자는 법 기준(15시간, 30분 등)만 쓰고 계약서 값은 넣지 않는다.
+const REQUESTS: Record<string, string> = {
+  R1: "사장님, 계약서를 다시 보다가 시급이 올해 최저시급보다 낮게 적혀 있는 것 같아서요. 최저시급에 맞게 고쳐 주실 수 있을까요? 감사합니다!",
+  R2: "사장님, 수습 기간 급여를 찾아보니 이 계약에서는 지금처럼 줄이기 어려울 수 있다고 해서요. 수습 기간 시급을 한 번 같이 확인해 주실 수 있을까요? 감사합니다!",
+  R3: "사장님, 일주일에 15시간 이상 일하면 주휴수당 대상이라고 들었는데, 계약서에는 주휴수당이 없다고 되어 있어서요. 이 부분 다시 확인해 주실 수 있을까요? 감사합니다!",
+  R4: "사장님, 4시간 일하면 30분, 8시간 일하면 1시간 쉬는 시간이 있어야 한다고 들었는데, 계약서에 휴게시간이 짧게 적힌 날이 있어서요. 휴게시간을 다시 정해 주실 수 있을까요? 감사합니다!",
+};
+
+export function correctionRequest(r: RuleResult): string | undefined {
+  if (r.id === "R5") {
+    if (!r.missing || r.missing.length === 0) return undefined;
+    return `사장님, 근로계약서에 ${r.missing.join(", ")} 항목이 빠져 있는 것 같아서요. 이 항목도 계약서에 적어 주실 수 있을까요? 감사합니다!`;
+  }
+  return r.status === "problem" ? REQUESTS[r.id] : undefined;
+}

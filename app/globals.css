@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+    "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+
+/* 브랜드 색: 앱 아이콘의 파랑(#2457C5)에 맞춰 Tailwind의 blue를 덮어쓴다 */
+@theme {
+  --color-blue-50: #eef3fc;
+  --color-blue-100: #dce6f9;
+  --color-blue-200: #bfd0f2;
+  --color-blue-500: #3a6bd6;
+  --color-blue-600: #2457c5;
+  --color-blue-700: #1c46a0;
+  --color-blue-800: #173a84;
+
+  --animate-screen-in: screen-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-float: float 2.4s ease-in-out infinite;
+  --animate-scan: scan 1.8s ease-in-out infinite;
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes scan {
+  0%,
+  100% {
+    top: 12%;
+  }
+  50% {
+    top: 80%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  word-break: keep-all;
+  -webkit-tap-highlight-color: transparent;
+}
