@@ -134,7 +134,12 @@ function ResultCard({
       {open && (
         <div className="animate-screen-in border-t border-zinc-100 px-4 pt-3 pb-4">
           <p className="text-sm leading-relaxed text-zinc-700">{r.explanation ?? r.detail}</p>
-          <p className="mt-3 text-xs leading-relaxed text-zinc-500">근거: {r.basis}</p>
+          <p className="mt-3 text-xs leading-relaxed text-zinc-500">
+            근거: {r.basis}{" "}
+            <a href={`/legal#${r.id}`} target="_blank" className="whitespace-nowrap text-blue-700 underline underline-offset-2">
+              조문 원문 보기
+            </a>
+          </p>
           {r.request && (
             <div className="mt-4">
               <h3 className="mb-2 text-xs font-semibold text-zinc-500">사장님께 이렇게 말해 보세요</h3>

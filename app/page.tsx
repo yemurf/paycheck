@@ -144,13 +144,16 @@ export default function LandingPage() {
           <SectionTitle eyebrow="믿을 수 있나요" title="AI는 읽고 설명만, 판정은 코드가 해요" />
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             <Trust title="같은 계약서엔 같은 결과">
-              법 기준 판정은 AI가 아니라 미리 정해 둔 규칙 코드가 해요. 경계값마다 테스트로 확인했어요.
+              근로기준법·최저임금법에 맞는지는 AI가 아니라 미리 정해 둔 규칙 코드가 판정해요. 경계값마다 테스트로 확인했어요.
             </Trust>
             <Trust title="숫자는 코드가 계산한 것만">
               AI 설명에 판정 결과에 없는 숫자가 나오면 그 설명은 버리고 기본 문구를 보여줘요.
             </Trust>
             <Trust title="근거 조문을 함께">
-              모든 결과에 최저임금법·근로기준법 조문을 같이 보여줘서 직접 확인할 수 있어요.
+              모든 결과에 최저임금법·근로기준법 조문을 같이 보여줘요.{" "}
+              <Link href="/legal" className="font-semibold underline underline-offset-2">
+                법적 근거 전체 보기
+              </Link>
             </Trust>
           </div>
 
@@ -203,6 +206,9 @@ export default function LandingPage() {
             <span>AI:ON 2026 출품작</span>
             <Link href="/privacy" className="underline underline-offset-2">
               개인정보 처리 안내
+            </Link>
+            <Link href="/legal" className="underline underline-offset-2">
+              법적 근거
             </Link>
             <a href="https://github.com/yemurf/paycheck" className="underline underline-offset-2">
               GitHub

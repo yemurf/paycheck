@@ -353,3 +353,21 @@ describe("F8 정정 요청 문장", () => {
     for (const item of r5.missing!) expect(r5.request).toContain(item);
   });
 });
+
+describe("법적 근거 페이지와 결과 카드의 조문이 같다", () => {
+  it("판정에 쓰는 조문은 모두 결과 카드 근거(BASIS)에 나온다", async () => {
+    const { LEGAL_SOURCES } = await import("./legal-sources");
+    const { BASIS } = await import("./standards");
+    for (const source of LEGAL_SOURCES) {
+      for (const a of source.articles.filter((x) => !x.reference)) {
+        for (const r of a.rules) expect(BASIS[r], `${r}에 ${source.name} ${a.jo}`).toContain(a.jo);
+      }
+    }
+  });
+
+  it("모든 점검에 근거 조문이 하나 이상 있다", async () => {
+    const { LEGAL_SOURCES } = await import("./legal-sources");
+    const used = new Set(LEGAL_SOURCES.flatMap((s) => s.articles.filter((a) => !a.reference).flatMap((a) => a.rules)));
+    expect([...used].sort()).toEqual(["R1", "R2", "R3", "R4", "R5"]);
+  });
+});

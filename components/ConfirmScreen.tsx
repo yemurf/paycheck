@@ -8,7 +8,7 @@ import { formatWon } from "@/rules/helpers";
 import { ErrorBox, PrimaryButton, ScreenHeader, WorkingScreen } from "./ui";
 
 const CHECK_STEPS = [
-  { at: 0, text: "법 기준과 비교하고 있어요" },
+  { at: 0, text: "근로기준법·최저임금법과 비교하고 있어요" },
   { at: 3, text: "결과를 쉬운 말로 풀어 쓰고 있어요" },
   { at: 8, text: "거의 다 됐어요" },
 ];

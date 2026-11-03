@@ -7,7 +7,7 @@ import { PrimaryButton, SecondaryButton } from "./ui";
 const STEPS = [
   { title: "가린 사진 올리기", body: "주민등록번호·계좌번호를 가린 계약서 사진을 골라요" },
   { title: "읽은 내용 확인", body: "AI가 읽은 시급과 근무시간을 확인하고 고쳐요" },
-  { title: "점검 결과 보기", body: "법 기준과 다른 조항과 사장님께 보낼 문장까지 알려드려요" },
+  { title: "점검 결과 보기", body: "확인이 필요한 조항과 사장님께 보낼 문장까지 알려드려요" },
 ];
 
 const BADGES = ["회원가입 없음", "사진 저장 안 함", "30초 안에 결과"];

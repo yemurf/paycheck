@@ -5,6 +5,7 @@
 - 서비스: https://paycheck-pi.vercel.app
 - 팀: 내돈내놔 (AI:ON 2026)
 - 기획 문서: [`prd_v1.md`](prd_v1.md)
+- 법적 근거: 판정에 쓰는 조항과 원문은 서비스의 [`/legal`](https://paycheck-pi.vercel.app/legal) 페이지에 있습니다 (출처: 국가법령정보센터). 데이터는 [`rules/legal-sources.ts`](rules/legal-sources.ts) 한 곳에서 관리합니다.
 
 ## 원칙: AI는 읽고 설명만, 판정과 계산은 코드
 
