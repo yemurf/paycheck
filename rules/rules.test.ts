@@ -464,6 +464,44 @@ describe("R7 18세 미만 근로", () => {
   });
 });
 
+describe("판정 기준 버전 (ruleset)", () => {
+  it("결과마다 기준 버전과 이번에 쓴 규칙을 함께 돌려준다", async () => {
+    const { RULES_VERSION } = await import("./version");
+    const { ruleset, results } = checkContract({ contract: contract(), minor: true, today: TODAY });
+    expect(ruleset.version).toBe(RULES_VERSION);
+    expect(ruleset.applied).toEqual(["R1", "R2", "R3", "R4", "R5", "R7"]);
+    expect(ruleset.applied).toEqual(results.map((r) => r.id).sort());
+    expect(ruleset.minWageYears).toEqual({ from: 2015, to: 2027 });
+    expect(ruleset.lawsCheckedOn).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(ruleset.consultedOn).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it("월급제 계약은 판정한 규칙만 담는다", () => {
+    const { ruleset } = checkContract({
+      contract: contract({ wage: { type: "monthly", amount: 2_200_000, weekly_holiday_pay: null } }),
+      today: TODAY,
+    });
+    expect(ruleset.applied).toEqual(["R4", "R5"]);
+  });
+
+  // 규칙 파일을 고치고 버전 올리는 걸 잊으면 여기서 실패한다.
+  // 실패하면: rules/version.ts의 RULES_VERSION을 올리고, RULES_FINGERPRINT를 아래 메시지의 값으로 바꾼다.
+  it("규칙 파일이 바뀌면 RULES_VERSION도 올린다", async () => {
+    const { readdirSync, readFileSync } = await import("node:fs");
+    const { createHash } = await import("node:crypto");
+    const { dirname } = await import("node:path");
+    const { fileURLToPath } = await import("node:url");
+    const { RULES_FINGERPRINT, RULES_VERSION } = await import("./version");
+    const dir = dirname(fileURLToPath(import.meta.url));
+    const hash = createHash("sha256");
+    for (const name of readdirSync(dir).filter((n) => n.endsWith(".ts") && !n.endsWith(".test.ts") && n !== "version.ts").sort()) {
+      hash.update(name).update(readFileSync(`${dir}/${name}`, "utf8").replace(/\r\n/g, "\n"));
+    }
+    const fingerprint = `${RULES_VERSION}:${hash.digest("hex").slice(0, 16)}`;
+    expect(RULES_FINGERPRINT, `규칙 파일이 바뀌었어요. RULES_VERSION을 올린 뒤 RULES_FINGERPRINT를 "${fingerprint}"로 바꿔 주세요.`).toBe(fingerprint);
+  });
+});
+
 describe("법적 근거 페이지와 결과 카드의 조문이 같다", () => {
   it("판정에 쓰는 조문은 모두 결과 카드 근거(BASIS)에 나온다", async () => {
     const { LEGAL_SOURCES } = await import("./legal-sources");

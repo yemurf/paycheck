@@ -8,6 +8,7 @@ import { checkBreak } from "./r4-break";
 import { checkRequiredItems } from "./r5-required-items";
 import { checkMinor } from "./r7-minor";
 import type { CheckResult, RuleResult, Status } from "./types";
+import { rulesetFor } from "./version";
 
 export type CheckInput = {
   contract: ContractExtraction; // 사용자가 확인·수정한 값
@@ -47,7 +48,9 @@ export function checkContract({ contract, weeklyHours, minor = false, today = ne
     notice: hourly
       ? undefined
       : "지금은 시급 계약서만 금액을 점검할 수 있어요. 휴게시간과 필수 기재사항은 확인했어요.",
+    ruleset: rulesetFor(results.map((r) => r.id)),
   };
 }
 
 export type { CheckResult, RuleId, RuleResult, Status } from "./types";
+export type { Ruleset } from "./version";

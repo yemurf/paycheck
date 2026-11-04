@@ -3,7 +3,15 @@ import type { RuleId } from "./types";
 // 판정 근거 조문과 원문. /legal 페이지가 이 데이터를 그대로 보여준다.
 // 원문은 국가법령정보센터(법제처) 현행 법령에서 옮겼다. 법이 바뀌면 이 파일과 standards.ts를 같이 고친다.
 
-export const LEGAL_VERIFIED_ON = "2026년 11월 3일";
+// "2026-11-03" → "2026년 11월 3일"
+const koreanDate = (iso: string) => {
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${y}년 ${m}월 ${d}일`;
+};
+
+// 법령 원문을 국가법령정보센터와 대조한 날. 판정 결과의 ruleset에도 들어간다 (rules/version.ts).
+export const LEGAL_VERIFIED_DATE = "2026-11-03";
+export const LEGAL_VERIFIED_ON = koreanDate(LEGAL_VERIFIED_DATE);
 export const LAW_GO_KR = "https://www.law.go.kr";
 
 export type LegalArticle = {
@@ -164,7 +172,8 @@ export const LEGAL_SOURCES: LegalSource[] = [
 ];
 
 // 고용노동부 고객상담센터(1350) 전화 상담으로 확인한 내용. 판정 기준을 정할 때 참고했다.
-export const CONSULTATION_DATE = "2026년 11월 3일";
+export const CONSULTATION_ISO_DATE = "2026-11-03";
+export const CONSULTATION_DATE = koreanDate(CONSULTATION_ISO_DATE);
 export const CONSULTATIONS: { q: string; a: string; rules: RuleId[] }[] = [
   { q: "5인 미만 사업장도 계약서에 연차유급휴가를 적어야 하나요?", a: "적지 않아도 돼요.", rules: ["R5"] },
   {

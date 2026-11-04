@@ -1,3 +1,5 @@
+import type { Ruleset } from "./version";
+
 // R6은 PRD에서 3.3% 신호(F11)로 예약해 두어서, 18세 미만 점검은 R7이다.
 export type RuleId = "R1" | "R2" | "R3" | "R4" | "R5" | "R7";
 
@@ -20,4 +22,5 @@ export type RuleResult = {
 export type CheckResult = {
   results: RuleResult[]; // problem → check → ok 순
   notice?: string;
+  ruleset: Ruleset; // 어떤 기준으로 판정했는지 (rules/version.ts)
 };
