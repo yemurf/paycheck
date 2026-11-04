@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "try-extract": "tsx --env-file=.env.local scripts/try-extract.ts",
+    "extract-stability": "tsx --env-file=.env.local scripts/extract-stability.ts",
     "test": "vitest run"
   },
   "dependencies": {
