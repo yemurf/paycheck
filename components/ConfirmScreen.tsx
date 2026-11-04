@@ -683,8 +683,25 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
             나이를 골라 주세요 (필수)
           </button>
         )}
-        <PrimaryButton disabled={!state.wageConfirmed || state.minor == null || loading} onClick={submit}>
+        {/* 마우스를 올리면 살짝 떠오르고 화살표가 앞으로 나간다. 비활성일 때는 움직이지 않는다 */}
+        <PrimaryButton
+          disabled={!state.wageConfirmed || state.minor == null || loading}
+          onClick={submit}
+          className="group flex items-center justify-center gap-1.5 duration-200 ease-out enabled:hover:-translate-y-0.5 enabled:hover:bg-blue-700 enabled:hover:shadow-lg enabled:hover:shadow-blue-600/30"
+        >
           점검하기
+          <svg
+            aria-hidden
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-5 transition-transform duration-200 ease-out group-enabled:group-hover:translate-x-1"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
         </PrimaryButton>
       </div>
     </div>
