@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ApiError, extractContract } from "@/lib/api-client";
 import type { ContractExtraction } from "@/lib/contract-schema";
 import { loadPhoto, type Photo } from "@/lib/image";
+import { loadPdfPages, PdfError } from "@/lib/pdf";
 import { ErrorBox, PrimaryButton, ScreenHeader, SecondaryButton, WorkingScreen } from "./ui";
 
 const MAX_PHOTOS = 2;
@@ -28,18 +29,45 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewing, setViewing] = useState<Photo | null>(null);
+  const [converting, setConverting] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
 
+  const hasPdf = photos.some((p) => p.fromPdf);
+
+  // 사진은 바로 줄이고, PDF는 앞에서부터 남은 장 수만큼 이미지로 바꾼다
   async function addFiles(list: FileList | null) {
     if (!list || list.length === 0) return;
     setError(null);
-    const files = Array.from(list).slice(0, MAX_PHOTOS - photos.length);
+    setNotice(null);
+    setConverting(true);
+    const added: Photo[] = [];
     try {
-      const loaded = await Promise.all(files.map(loadPhoto));
-      onPhotosChange([...photos, ...loaded]);
-    } catch {
-      setError("사진을 열 수 없어요. 다른 사진으로 다시 올려주세요.");
+      for (const file of Array.from(list)) {
+        const room = MAX_PHOTOS - photos.length - added.length;
+        if (room <= 0) break;
+        if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+          const { photos: pages, totalPages } = await loadPdfPages(file, room);
+          added.push(...pages);
+          if (totalPages > pages.length) {
+            setNotice(`PDF가 ${totalPages}쪽이라 앞 ${pages.length}쪽만 올렸어요. 계약서는 ${MAX_PHOTOS}장까지 볼 수 있어요.`);
+          }
+        } else {
+          added.push(await loadPhoto(file));
+        }
+      }
+    } catch (e) {
+      setError(
+        e instanceof PdfError
+          ? e.code === "PASSWORD"
+            ? "암호가 걸린 PDF는 열 수 없어요. 암호를 푼 PDF나 사진으로 올려 주세요."
+            : "PDF를 열 수 없어요. 다른 파일이나 사진으로 다시 올려 주세요."
+          : "사진을 열 수 없어요. 다른 사진으로 다시 올려주세요.",
+      );
+    } finally {
+      setConverting(false);
     }
+    if (added.length > 0) onPhotosChange([...photos, ...added]);
   }
 
   function removePhoto(id: string) {
@@ -69,7 +97,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
       <input
         ref={input}
         type="file"
-        accept="image/*"
+        accept="image/*,application/pdf"
         multiple
         hidden
         onChange={(e) => {
@@ -94,7 +122,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
                 <button
                   onClick={() => setViewing(p)}
                   aria-label={`계약서 ${i + 1}장 크게 보기`}
-                  className="block w-full transition active:scale-[0.98]"
+                  className="relative block w-full transition active:scale-[0.98]"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- 로컬 object URL */}
                   <img
@@ -107,7 +135,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
                   </span>
                 </button>
                 <span className="absolute top-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-xs font-semibold text-white">
-                  {i + 1}장
+                  {p.fromPdf ? `${i + 1}장 · PDF` : `${i + 1}장`}
                 </span>
                 {!isSample && (
                   <button
@@ -137,18 +165,32 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
 
       <div className="mt-6 space-y-3 pb-4">
         {error && <ErrorBox>{error}</ErrorBox>}
+        {notice && <p className="rounded-xl bg-zinc-100 px-4 py-3 text-sm text-zinc-700">{notice}</p>}
         {photos.length === 0 ? (
-          <PrimaryButton onClick={() => input.current?.click()}>가린 사진 고르기</PrimaryButton>
+          <PrimaryButton disabled={converting} onClick={() => input.current?.click()}>
+            {converting ? "PDF를 여는 중이에요…" : "가린 사진이나 PDF 고르기"}
+          </PrimaryButton>
         ) : (
           <>
-            {!isSample && (
-              <p className="text-center text-sm text-zinc-500">주민등록번호와 계좌번호가 가려졌는지 한 번 더 확인해 주세요.</p>
-            )}
-            <PrimaryButton disabled={loading} onClick={submit}>
+            {!isSample &&
+              (hasPdf ? (
+                <p role="alert" className="rounded-xl bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900 ring-1 ring-amber-200">
+                  <strong>PDF는 올린 그대로 보내요.</strong> 사진을 눌러{" "}
+                  <strong className="rounded bg-red-200 box-decoration-clone px-1 text-zinc-900">
+                    주민등록번호나 계좌번호가 보이는지 확인해 주세요.
+                  </strong>{" "}
+                  보이면 ✕로 빼고, 화면을 캡처해 사진 앱에서 가린 뒤 사진으로 올려 주세요.
+                </p>
+              ) : (
+                <p className="text-center text-sm text-zinc-500">주민등록번호와 계좌번호가 가려졌는지 한 번 더 확인해 주세요.</p>
+              ))}
+            <PrimaryButton disabled={loading || converting} onClick={submit}>
               분석하기
             </PrimaryButton>
             {!isSample && photos.length < MAX_PHOTOS && (
-              <SecondaryButton onClick={() => input.current?.click()}>계약서 다음 장 추가</SecondaryButton>
+              <SecondaryButton disabled={converting} onClick={() => input.current?.click()}>
+                {converting ? "PDF를 여는 중이에요…" : "계약서 다음 장 추가"}
+              </SecondaryButton>
             )}
           </>
         )}
@@ -226,6 +268,7 @@ function MaskGuide() {
       <ul className="space-y-1 px-1 text-sm text-zinc-500">
         <li>· 계약서 전체가 나오게, 밝은 곳에서 찍은 사진이 좋아요</li>
         <li>· 계약서가 두 장이면 두 장 모두 올려 주세요</li>
+        <li>· PDF는 주민등록번호와 계좌번호가 가려진 것만 올려 주세요. 가려져 있지 않다면 화면을 캡처해 사진 앱에서 가린 뒤 사진으로 올려 주세요</li>
       </ul>
     </div>
   );

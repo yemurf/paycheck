@@ -19,6 +19,10 @@ export default function PrivacyPage() {
       <Section title="무엇을 받나요">
         <ul className="list-disc space-y-1 pl-5">
           <li>근로계약서 사진 (주민등록번호·계좌번호는 올리기 전에 사진 앱에서 직접 가려 주세요. 올린 사진은 크기만 줄여서 보내요)</li>
+          <li>
+            근로계약서 PDF (휴대폰에서 앞 2쪽을 이미지로 바꿔 사진과 같은 방식으로 보내요. PDF는 가리지 않고 올린 그대로
+            보내니, 주민등록번호·계좌번호가 가려진 PDF만 올려 주세요)
+          </li>
           <li>확인 화면에서 직접 고치거나 입력한 값</li>
         </ul>
       </Section>
