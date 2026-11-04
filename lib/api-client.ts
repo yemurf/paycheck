@@ -40,10 +40,11 @@ export async function extractContract(photos: Photo[]): Promise<ContractExtracti
 export async function checkContract(
   contract: ContractExtraction,
   weeklyHours: number | null,
+  minor: boolean,
 ): Promise<CheckResult> {
   return call("/api/check", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contract, weeklyHours }),
+    body: JSON.stringify({ contract, weeklyHours, minor }),
   });
 }

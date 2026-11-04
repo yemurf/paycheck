@@ -7,9 +7,10 @@ import { checkContract } from "@/rules";
 const CheckRequestSchema = z.object({
   contract: ContractExtractionSchema,
   weeklyHours: z.number().min(0).max(168).nullable().optional(),
+  minor: z.boolean().optional(),
 });
 
-// 요청: { contract: 사용자가 확인한 추출값, weeklyHours?: 평소 주 근로시간 }
+// 요청: { contract: 사용자가 확인한 추출값, weeklyHours?: 평소 주 근로시간, minor?: 18세 미만인지 }
 // 응답: { data: CheckResult } 또는 { error: { code, message } }
 // 판정은 코드(rules)가 하고, Claude는 쉬운 설명(F7)만 붙인다.
 // 설명이 실패하거나 숫자 검사에 걸리면 규칙별 기본 문구(detail)가 그대로 보인다.

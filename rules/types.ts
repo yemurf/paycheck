@@ -1,4 +1,5 @@
-export type RuleId = "R1" | "R2" | "R3" | "R4" | "R5";
+// R6은 PRD에서 3.3% 신호(F11)로 예약해 두어서, 18세 미만 점검은 R7이다.
+export type RuleId = "R1" | "R2" | "R3" | "R4" | "R5" | "R7";
 
 // problem: 기준과 달라요 / check: 확인이 필요해요 / ok: 문제 없어요
 export type Status = "problem" | "check" | "ok";

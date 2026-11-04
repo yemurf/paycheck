@@ -10,7 +10,7 @@ const STATUS_LABEL = { problem: "기준과 달라요", check: "확인이 필요�
 const ExplanationSchema = z.object({
   items: z.array(
     z.object({
-      id: z.enum(["R1", "R2", "R3", "R4", "R5"]),
+      id: z.enum(["R1", "R2", "R3", "R4", "R5", "R7"]),
       explanation: z.string().describe("2~3문장 쉬운 설명"),
     }),
   ),

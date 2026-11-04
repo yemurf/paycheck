@@ -6,17 +6,19 @@ import { checkProbation } from "./r2-probation";
 import { checkWeeklyHoliday } from "./r3-weekly-holiday";
 import { checkBreak } from "./r4-break";
 import { checkRequiredItems } from "./r5-required-items";
+import { checkMinor } from "./r7-minor";
 import type { CheckResult, RuleResult, Status } from "./types";
 
 export type CheckInput = {
   contract: ContractExtraction; // 사용자가 확인·수정한 값
   weeklyHours?: number | null; // 스케줄이 고정되지 않았을 때 사용자가 입력한 평소 주 근로시간
+  minor?: boolean; // 근무 시작일에 만 18세 미만인지 (확인 화면에서 사용자가 답한다)
   today?: Date; // 계약 시작일을 모를 때 기준 연도
 };
 
 const STATUS_ORDER: Record<Status, number> = { problem: 0, check: 1, ok: 2 };
 
-export function checkContract({ contract, weeklyHours, today = new Date() }: CheckInput): CheckResult {
+export function checkContract({ contract, weeklyHours, minor = false, today = new Date() }: CheckInput): CheckResult {
   const scheduled = contract.schedule_fixed === false ? null : weeklyWorkMinutes(contract.schedule);
   const weeklyMinutes =
     scheduled ?? (weeklyHours != null ? Math.round(weeklyHours * 60) : null);
@@ -32,6 +34,8 @@ export function checkContract({ contract, weeklyHours, today = new Date() }: Che
         checkRequiredItems(contract),
       ]
     : [checkBreak(contract), checkRequiredItems(contract)];
+  // 18세 미만 기준은 임금 형태와 상관없이 본다
+  if (minor) results.push(checkMinor(contract, weeklyMinutes));
 
   results.sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
 

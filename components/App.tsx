@@ -70,7 +70,7 @@ export function App() {
   function onExtracted(contract: ContractExtraction) {
     // 분석 중에 뒤로가기로 업로드 화면을 떠났으면 결과로 끌고 가지 않는다
     if (stepRef.current !== "upload") return;
-    setConfirm({ contract, weeklyHours: "", wageConfirmed: false });
+    setConfirm({ contract, weeklyHours: "", wageConfirmed: false, minor: null });
     go("confirm");
   }
 

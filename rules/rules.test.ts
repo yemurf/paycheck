@@ -7,6 +7,7 @@ import { checkProbation } from "./r2-probation";
 import { checkWeeklyHoliday, minWageWithHolidayPay } from "./r3-weekly-holiday";
 import { checkBreak } from "./r4-break";
 import { checkRequiredItems } from "./r5-required-items";
+import { checkMinor, worksAtNight } from "./r7-minor";
 
 type Schedule = ContractExtraction["schedule"];
 type Day = Schedule[number]["day"];
@@ -380,6 +381,89 @@ describe("F8 정정 요청 문장", () => {
   });
 });
 
+describe("R7 18세 미만 근로", () => {
+  const minor = (overrides: Partial<ContractExtraction> = {}, weeklyHours?: number) =>
+    checkContract({ contract: contract(overrides), weeklyHours, minor: true, today: TODAY }).results.find(
+      (r) => r.id === "R7",
+    )!;
+
+  it("18세 미만이라고 답했을 때만 점검한다", () => {
+    expect(checkContract({ contract: contract(), today: TODAY }).results.some((r) => r.id === "R7")).toBe(false);
+    expect(checkContract({ contract: contract(), minor: false, today: TODAY }).results.some((r) => r.id === "R7")).toBe(false);
+    expect(minor()).toBeDefined();
+  });
+
+  it("근무시간이 기준 안이어도 서류 때문에 항상 확인 필요로 안내한다", () => {
+    const r = minor(); // 월·수·금 5시간 = 주 15시간
+    expect(r.status).toBe("check");
+    expect(r.summary).toContain("기준에 맞아요");
+    expect(r.detail).toContain("가족관계증명서");
+    expect(r.detail).toContain("1388");
+    expect(r.request).toBeUndefined();
+  });
+
+  it("하루 7시간은 괜찮고, 7시간 초과~8시간은 합의 확인, 8시간 초과는 기준과 달라요", () => {
+    expect(minor({ schedule: days(["토"], "09:00", "16:30", 30) }).summary).toContain("기준에 맞아요"); // 7시간
+    expect(minor({ schedule: days(["토"], "09:00", "17:00", 30) }).status).toBe("check"); // 7시간 30분
+    expect(minor({ schedule: days(["토"], "09:00", "17:30", 30) }).status).toBe("check"); // 8시간
+    const over = minor({ schedule: days(["토"], "09:00", "18:00", 30) }); // 8시간 30분
+    expect(over.status).toBe("problem");
+    expect(over.detail).toContain("토요일은 8시간 30분");
+    expect(over.request).toContain("18세 미만");
+  });
+
+  it("주 35시간 초과~40시간은 합의 확인, 40시간 초과는 기준과 달라요", () => {
+    const six = (end: string) => days(["월", "화", "수", "목", "금", "토"], "10:00", end, 0);
+    expect(minor({ schedule: six("15:50") }).summary).toContain("기준에 맞아요"); // 주 35시간
+    expect(minor({ schedule: six("16:30") }).status).toBe("check"); // 주 39시간
+    expect(minor({ schedule: six("17:00") }).status).toBe("problem"); // 주 42시간 (하루 7시간)
+  });
+
+  it("스케줄 근무면 입력한 주 근로시간으로 본다", () => {
+    const flexible = { schedule_fixed: false, schedule: [] };
+    expect(minor(flexible, 35).summary).toContain("기준에 맞아요");
+    expect(minor(flexible, 38).status).toBe("check");
+    expect(minor(flexible, 41).status).toBe("problem");
+  });
+
+  it("근무 시간을 모르면 모른다고 말한다", () => {
+    const r = minor({ schedule: [] });
+    expect(r.status).toBe("check");
+    expect(r.summary).toContain("확인하지 못했어요");
+  });
+
+  it("오후 10시~오전 6시에 걸친 근무는 인가 확인이 필요해요", () => {
+    const r = minor({ schedule: days(["금"], "18:00", "22:30", 30) });
+    expect(r.status).toBe("check");
+    expect(r.summary).toContain("밤 10시");
+    expect(r.detail).toContain("금요일 18:00~22:30");
+  });
+
+  it("월급제여도 18세 미만 기준은 본다", () => {
+    const { results } = checkContract({
+      contract: contract({ wage: { type: "monthly", amount: 2_200_000, weekly_holiday_pay: null } }),
+      minor: true,
+      today: TODAY,
+    });
+    expect(results.map((r) => r.id).sort()).toEqual(["R4", "R5", "R7"]);
+  });
+
+  it("야간 시간과 겹치는지 경계값까지 계산한다", () => {
+    const at = (start: string, end: string) => worksAtNight({ day: "월", start, end, break_minutes: 0 });
+    expect(at("14:00", "22:00")).toBe(false); // 10시 정각에 끝남
+    expect(at("06:00", "12:00")).toBe(false); // 6시 정각에 시작
+    expect(at("14:00", "22:01")).toBe(true);
+    expect(at("05:30", "09:00")).toBe(true); // 새벽
+    expect(at("23:00", "02:00")).toBe(true); // 자정을 넘김
+    expect(at("20:00", "07:00")).toBe(true);
+    expect(at(null as unknown as string, "07:00")).toBe(false);
+  });
+
+  it("checkMinor는 주 근로시간을 따로 받는다", () => {
+    expect(checkMinor(contract({ schedule: [] }), 36 * 60).status).toBe("check");
+  });
+});
+
 describe("법적 근거 페이지와 결과 카드의 조문이 같다", () => {
   it("판정에 쓰는 조문은 모두 결과 카드 근거(BASIS)에 나온다", async () => {
     const { LEGAL_SOURCES } = await import("./legal-sources");
@@ -394,6 +478,6 @@ describe("법적 근거 페이지와 결과 카드의 조문이 같다", () => {
   it("모든 점검에 근거 조문이 하나 이상 있다", async () => {
     const { LEGAL_SOURCES } = await import("./legal-sources");
     const used = new Set(LEGAL_SOURCES.flatMap((s) => s.articles.filter((a) => !a.reference).flatMap((a) => a.rules)));
-    expect([...used].sort()).toEqual(["R1", "R2", "R3", "R4", "R5"]);
+    expect([...used].sort()).toEqual(["R1", "R2", "R3", "R4", "R5", "R7"]);
   });
 });

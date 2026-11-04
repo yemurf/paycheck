@@ -32,6 +32,7 @@ const RULE_ICON: Record<RuleId, string> = {
   R3: "📅",
   R4: "☕",
   R5: "📝",
+  R7: "🎒",
 };
 
 type Props = {

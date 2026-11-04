@@ -10,6 +10,12 @@ const CHECKS = [
   { icon: "📅", title: "주휴수당", body: "주 15시간 이상 일하는데 주휴수당이 빠지거나 없다고 적혀 있지 않은지", law: "근로기준법 제55조" },
   { icon: "☕", title: "휴게시간", body: "4시간 일하면 30분, 8시간 일하면 1시간 이상 쉬는 시간이 있는지", law: "근로기준법 제54조" },
   { icon: "📝", title: "필수 기재사항", body: "임금, 근로시간, 휴일, 휴가 등 꼭 적어야 하는 항목이 빠지지 않았는지", law: "근로기준법 제17조" },
+  {
+    icon: "🎒",
+    title: "18세 미만이라면",
+    body: "하루 7시간·주 35시간을 넘지 않는지, 밤 10시 이후 근무가 없는지, 가족관계증명서와 친권자 동의서까지",
+    law: "근로기준법 제69조·제70조",
+  },
 ];
 
 const PAINS = [
@@ -93,7 +99,7 @@ export default function LandingPage() {
       {/* 점검 항목 */}
       <section className="py-16 md:py-24">
         <div className="mx-auto max-w-5xl px-5">
-          <SectionTitle eyebrow="무엇을 확인하나요" title="알바 계약서에서 꼭 확인할 5가지" />
+          <SectionTitle eyebrow="무엇을 확인하나요" title="알바 계약서에서 꼭 확인할 6가지" />
           <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {CHECKS.map((c) => (
               <li key={c.title} className="rounded-3xl p-6 ring-1 ring-zinc-200 transition hover:shadow-md">
@@ -105,7 +111,8 @@ export default function LandingPage() {
                 <p className="mt-3 text-xs font-semibold text-blue-700">{c.law}</p>
               </li>
             ))}
-            <li>
+            {/* 점검 항목이 6개라 마지막 줄 전체를 쓴다 */}
+            <li className="sm:col-span-2 lg:col-span-3">
               <Link
                 href="/no-contract"
                 className="flex h-full flex-col justify-center rounded-3xl bg-blue-600 p-6 text-white transition hover:bg-blue-700 active:scale-[0.98]"

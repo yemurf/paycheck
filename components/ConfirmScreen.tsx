@@ -17,6 +17,8 @@ export type ConfirmState = {
   contract: ContractExtraction;
   weeklyHours: string; // 스케줄 근무일 때만 입력
   wageConfirmed: boolean; // 시급은 값이 있어도 항상 확인받는다 (F4)
+  // 근무 시작일에 만 18세 미만인지. 미리 고르지 않는다: "18세 이상"을 기본값으로 두면 청소년이 그냥 넘어가 경고를 못 받는다
+  minor: boolean | null;
 };
 
 type Props = {
@@ -153,7 +155,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
     setError(null);
     try {
       const weeklyHours = fixed ? null : toNumber(state.weeklyHours);
-      onChecked(await checkContract(c, weeklyHours));
+      onChecked(await checkContract(c, weeklyHours, state.minor === true));
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "잠시 후 다시 시도해 주세요.");
     } finally {
@@ -618,7 +620,9 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
         )}
       </div>
 
-      <ul className="space-y-3">
+      <AgeQuestion value={state.minor} onChange={(minor) => onChange({ ...state, minor })} />
+
+      <ul className="mt-3 space-y-3">
         {order.map((k) => (
           <li key={k}>{cards[k]}</li>
         ))}
@@ -670,11 +674,59 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
             급여 카드의 &lsquo;계약서의 금액과 같아요&rsquo;를 체크해 주세요 (필수)
           </button>
         )}
-        <PrimaryButton disabled={!state.wageConfirmed || loading} onClick={submit}>
+        {state.minor == null && (
+          <button
+            type="button"
+            className="w-full text-center text-sm text-amber-800 underline underline-offset-2"
+            onClick={() => document.getElementById("age-question")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+          >
+            나이를 골라 주세요 (필수)
+          </button>
+        )}
+        <PrimaryButton disabled={!state.wageConfirmed || state.minor == null || loading} onClick={submit}>
           점검하기
         </PrimaryButton>
       </div>
     </div>
+  );
+}
+
+// 계약서에는 없는 정보라 직접 묻는다. 18세 미만이면 근로시간·야간 근로·서류 기준(R7)을 더 본다.
+function AgeQuestion({ value, onChange }: { value: boolean | null; onChange: (minor: boolean) => void }) {
+  const option = (minor: boolean, label: string) => (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={value === minor}
+      onClick={() => onChange(minor)}
+      className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold transition active:scale-[0.98] ${
+        value === minor ? "bg-blue-600 text-white" : "bg-white text-zinc-700 ring-1 ring-zinc-300"
+      }`}
+    >
+      {label}
+    </button>
+  );
+
+  return (
+    <section
+      id="age-question"
+      className={`scroll-mt-6 rounded-2xl p-4 shadow-sm ring-1 ${value == null ? "bg-amber-50/70 ring-amber-300" : "bg-white ring-zinc-200"}`}
+    >
+      <h2 className="flex items-center gap-1.5 text-sm font-semibold text-zinc-500">
+        나이
+        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">필수</span>
+      </h2>
+      <p className="mt-1.5 font-bold text-zinc-900">근무를 시작하는 날, 만 18세 미만인가요?</p>
+      <div role="radiogroup" aria-label="만 18세 미만인지" className="mt-3 flex gap-2">
+        {option(true, "18세 미만이에요")}
+        {option(false, "18세 이상이에요")}
+      </div>
+      {value === true && (
+        <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+          18세 미만은 일할 수 있는 시간과 필요한 서류가 따로 있어서 함께 확인해 드려요.
+        </p>
+      )}
+    </section>
   );
 }
 

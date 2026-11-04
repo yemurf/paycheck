@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "페이체크가 근로계약서를 점검할 때 쓰는 법 조항과 원문 (출처: 국가법령정보센터)",
 };
 
-const RULE_IDS: RuleId[] = ["R1", "R2", "R3", "R4", "R5"];
+const RULE_IDS: RuleId[] = ["R1", "R2", "R3", "R4", "R5", "R7"];
 
 export default function LegalPage() {
   const minWages = Object.entries(MIN_WAGE_BY_YEAR)
