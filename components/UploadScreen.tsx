@@ -1,5 +1,6 @@
 "use client";
 
+import { PenLine, X, ZoomIn } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ApiError, extractContract } from "@/lib/api-client";
 import type { ContractExtraction } from "@/lib/contract-schema";
@@ -108,7 +109,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
 
       <div className="flex-1">
         {isSample ? (
-          <p className="mb-4 rounded-2xl bg-blue-50 px-4 py-3 text-sm leading-relaxed text-blue-800">
+          <p className="mb-4 squircle-2xl bg-blue-50 px-4 py-3 text-sm leading-relaxed text-blue-800">
             가상의 카페 계약서예요. 아래 <strong>분석하기</strong>를 눌러 실제로 점검되는 과정을 체험해 보세요.
           </p>
         ) : (
@@ -122,16 +123,17 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
                 <button
                   onClick={() => setViewing(p)}
                   aria-label={`계약서 ${i + 1}장 크게 보기`}
-                  className="relative block w-full transition active:scale-[0.98]"
+                  className="relative block w-full overflow-hidden squircle-xl border border-zinc-200 transition active:scale-[0.98]"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- 로컬 object URL */}
                   <img
                     src={p.src}
                     alt={`계약서 ${i + 1}장`}
-                    className="aspect-[3/4] w-full rounded-xl border border-zinc-200 object-cover object-top"
+                    className="aspect-[3/4] w-full object-cover object-top"
                   />
-                  <span className="absolute inset-x-0 bottom-0 rounded-b-xl bg-gradient-to-t from-black/60 to-transparent pt-6 pb-2 text-center text-xs font-semibold text-white">
-                    🔍 눌러서 크게 보기
+                  <span className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-gradient-to-t from-black/60 to-transparent pt-6 pb-2 text-xs font-semibold text-white">
+                    <ZoomIn aria-hidden className="size-3.5" />
+                    눌러서 크게 보기
                   </span>
                 </button>
                 <span className="absolute top-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-xs font-semibold text-white">
@@ -143,7 +145,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
                     aria-label={`${i + 1}장 빼기`}
                     className="absolute top-1.5 right-1.5 flex size-7 items-center justify-center rounded-full bg-black/60 text-white"
                   >
-                    ✕
+                    <X aria-hidden className="size-4" />
                   </button>
                 )}
               </li>
@@ -152,7 +154,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
               <li>
                 <button
                   onClick={() => input.current?.click()}
-                  className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-zinc-300 text-sm text-zinc-500 transition active:scale-[0.98]"
+                  className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-1 squircle-xl border-2 border-dashed border-zinc-300 text-sm text-zinc-500 transition active:scale-[0.98]"
                 >
                   <span className="text-2xl">＋</span>
                   다음 장 추가
@@ -165,7 +167,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
 
       <div className="mt-6 space-y-3 pb-4">
         {error && <ErrorBox>{error}</ErrorBox>}
-        {notice && <p className="rounded-xl bg-zinc-100 px-4 py-3 text-sm text-zinc-700">{notice}</p>}
+        {notice && <p className="squircle-xl bg-zinc-100 px-4 py-3 text-sm text-zinc-700">{notice}</p>}
         {photos.length === 0 ? (
           <PrimaryButton disabled={converting} onClick={() => input.current?.click()}>
             {converting ? "PDF를 여는 중이에요…" : "가린 사진이나 PDF 고르기"}
@@ -174,7 +176,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
           <>
             {!isSample &&
               (hasPdf ? (
-                <p role="alert" className="rounded-xl bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900 ring-1 ring-amber-200">
+                <p role="alert" className="squircle-xl bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900 ring-1 ring-amber-200">
                   <strong>PDF는 올린 그대로 보내요.</strong> 사진을 눌러{" "}
                   <strong className="rounded bg-red-200 box-decoration-clone px-1 text-zinc-900">
                     주민등록번호나 계좌번호가 보이는지 확인해 주세요.
@@ -218,16 +220,23 @@ function PhotoViewer({ photo, onClose }: { photo: Photo; onClose: () => void }) 
       <div className="flex items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3">
         <button
           onClick={() => setZoomed(!zoomed)}
-          className="rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white active:bg-white/25"
+          className="flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white active:bg-white/25"
         >
-          {zoomed ? "화면에 맞추기" : "🔍 확대"}
+          {zoomed ? (
+            "화면에 맞추기"
+          ) : (
+            <>
+              <ZoomIn aria-hidden className="size-4" />
+              확대
+            </>
+          )}
         </button>
         <button
           onClick={onClose}
           aria-label="닫기"
-          className="flex size-10 items-center justify-center rounded-full bg-white/15 text-lg text-white active:bg-white/25"
+          className="flex size-10 items-center justify-center rounded-full bg-white/15 text-white active:bg-white/25"
         >
-          ✕
+          <X aria-hidden className="size-5" />
         </button>
       </div>
       <div className="flex-1 overflow-auto overscroll-contain" onDoubleClick={() => setZoomed(!zoomed)}>
@@ -249,8 +258,11 @@ function PhotoViewer({ photo, onClose }: { photo: Photo; onClose: () => void }) 
 function MaskGuide() {
   return (
     <div className="space-y-3">
-      <div className="rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-200">
-        <p className="font-semibold text-amber-900">🖊 올리기 전에 직접 가려 주세요</p>
+      <div className="squircle-2xl bg-amber-50 p-4 ring-1 ring-amber-200">
+        <p className="flex items-center gap-1.5 font-semibold text-amber-900">
+          <PenLine aria-hidden className="size-4" />
+          올리기 전에 직접 가려 주세요
+        </p>
         <p className="mt-1 text-sm leading-relaxed text-amber-900/80">
           주민등록번호와 계좌번호를 사진 앱의 펜으로 칠한 뒤 올려 주세요. 가린 사진만 서버로 보내요.
         </p>

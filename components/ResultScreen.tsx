@@ -1,8 +1,10 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import type { CheckResult, RuleId, RuleResult, Status } from "@/rules";
+import type { CheckResult, RuleResult, Status } from "@/rules";
 import { formatWon } from "@/rules/helpers";
+import { RULE_ICON } from "./rule-icons";
 import { CopyMessage, Disclaimer, PrimaryButton, ScreenHeader, SecondaryButton } from "./ui";
 
 const STATUS_STYLE: Record<Status, { label: string; badge: string; card: string; count: string }> = {
@@ -10,29 +12,20 @@ const STATUS_STYLE: Record<Status, { label: string; badge: string; card: string;
     label: "기준과 달라요",
     badge: "bg-red-100 text-red-700",
     card: "border-red-200",
-    count: "bg-red-50 text-red-700",
+    count: "text-red-600",
   },
   check: {
     label: "확인이 필요해요",
     badge: "bg-amber-100 text-amber-800",
     card: "border-amber-200",
-    count: "bg-amber-50 text-amber-800",
+    count: "text-amber-600",
   },
   ok: {
     label: "문제 없어요",
     badge: "bg-green-100 text-green-700",
     card: "border-zinc-200",
-    count: "bg-green-50 text-green-700",
+    count: "text-green-600",
   },
-};
-
-const RULE_ICON: Record<RuleId, string> = {
-  R1: "💰",
-  R2: "🌱",
-  R3: "📅",
-  R4: "☕",
-  R5: "📝",
-  R7: "🎒",
 };
 
 type Props = {
@@ -59,21 +52,21 @@ export function ResultScreen({ result, canAddPhoto, onAddPhoto, onEdit, onRestar
     <div>
       <ScreenHeader title="점검 결과" onBack={onEdit} />
 
-      <section className="mb-6 rounded-3xl bg-zinc-50 p-5 ring-1 ring-zinc-200">
+      <section className="mb-6 squircle-3xl bg-zinc-50 p-5 ring-1 ring-zinc-200">
         <p className="text-sm font-medium text-zinc-500">항목 {result.results.length}개를 점검했어요</p>
         <p className="mt-1 text-xl font-bold leading-snug">{headline}</p>
-        <div className="mt-4 grid grid-cols-3 gap-2">
+        <dl className="mt-4 grid grid-cols-3 divide-x divide-zinc-200 border-t border-zinc-200 pt-4">
           {(["problem", "check", "ok"] as const).map((s) => (
-            <div key={s} className={`rounded-2xl px-2 py-3 text-center ${STATUS_STYLE[s].count}`}>
-              <p className="text-2xl font-bold">{count(s)}</p>
-              <p className="mt-0.5 text-xs font-semibold">{STATUS_STYLE[s].label}</p>
+            <div key={s} className="flex flex-col-reverse items-center">
+              <dt className="mt-0.5 text-xs font-medium text-zinc-500">{STATUS_STYLE[s].label}</dt>
+              <dd className={`text-2xl font-bold ${count(s) > 0 ? STATUS_STYLE[s].count : "text-zinc-300"}`}>{count(s)}</dd>
             </div>
           ))}
-        </div>
+        </dl>
       </section>
 
       {result.notice && (
-        <p className="mb-4 rounded-2xl bg-zinc-100 px-4 py-3 text-sm text-zinc-700">{result.notice}</p>
+        <p className="mb-4 squircle-2xl bg-zinc-100 px-4 py-3 text-sm text-zinc-700">{result.notice}</p>
       )}
 
       <ul className="space-y-3">
@@ -105,22 +98,19 @@ function ResultCard({
 }) {
   const [open, setOpen] = useState(r.status !== "ok");
   const style = STATUS_STYLE[r.status];
+  const Icon = RULE_ICON[r.id];
 
   return (
-    <div className={`overflow-hidden rounded-2xl border bg-white shadow-sm ${style.card}`}>
+    <div className={`overflow-hidden squircle-2xl border bg-white shadow-sm ${style.card}`}>
       <button className="w-full p-4 text-left transition active:bg-zinc-50" onClick={() => setOpen(!open)} aria-expanded={open}>
         <div className="flex items-center justify-between gap-2">
           <span className="flex items-center gap-2 font-semibold">
-            <span aria-hidden className="text-lg">
-              {RULE_ICON[r.id]}
-            </span>
+            <Icon aria-hidden className="size-5 text-zinc-500" />
             {r.title}
           </span>
           <span className="flex shrink-0 items-center gap-1.5">
             <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${style.badge}`}>{style.label}</span>
-            <span aria-hidden className={`text-zinc-400 transition-transform ${open ? "rotate-180" : ""}`}>
-              ⌄
-            </span>
+            <ChevronDown aria-hidden className={`size-5 text-zinc-400 transition-transform ${open ? "rotate-180" : ""}`} />
           </span>
         </div>
         <p className="mt-1.5 text-sm leading-relaxed text-zinc-700">{r.summary}</p>
