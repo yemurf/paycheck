@@ -71,7 +71,7 @@ export function StartScreen({ onStart, onSample, onNoContract, sampleLoading }: 
           />
           <span>
             사진은 분석을 위해 해외 AI 서비스(OpenRouter를 거쳐 Claude AI)로 전송돼요. 페이체크는 사진과 결과를
-            저장하지 않아요. 주민등록번호와 계좌번호는 <strong className="text-zinc-800">올리기 전에 직접 가려</strong>{" "}
+            저장하지 않아요. 주민등록번호와 계좌번호는 <strong className="rounded bg-red-200 box-decoration-clone px-1 text-zinc-900">올리기 전에 직접 가려</strong>{" "}
             주세요.{" "}
             <Link href="/privacy" className="underline underline-offset-2">
               자세히 보기
