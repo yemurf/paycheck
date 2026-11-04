@@ -20,27 +20,27 @@ export default function LegalPage() {
     .sort((a, b) => b.year - a.year);
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-5 py-6 leading-relaxed text-zinc-700">
-      <Link href="/" className="-ml-1 inline-flex items-center gap-0.5 text-sm text-blue-600">
+    <main className="mx-auto w-full max-w-2xl px-5 py-6 text-body text-zinc-700">
+      <Link href="/" className="-ml-1 inline-flex min-h-11 items-center gap-1 text-body-sm text-blue-600">
         <ChevronLeft aria-hidden className="size-4" />
         페이체크로 돌아가기
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-zinc-900">법적 근거</h1>
+      <h1 className="mt-2 text-title1 text-zinc-900">법적 근거</h1>
       <p className="mt-2">
         페이체크가 근로계약서를 점검할 때 쓰는 법 조항과 그 원문이에요. 판정은 아래 조항을 옮긴 규칙 코드가 하고,
         AI는 계약서를 읽고 결과를 쉽게 풀어 쓰는 일만 해요.
       </p>
-      <p className="mt-3 rounded-2xl bg-zinc-50 px-4 py-3 text-sm ring-1 ring-zinc-200">
+      <p className="mt-3 rounded-2xl bg-zinc-50 px-4 py-3 text-body-sm ring-1 ring-zinc-200">
         출처: <a href={LAW_HOME} className="font-semibold text-blue-700 underline underline-offset-2">국가법령정보센터(법제처)</a>{" "}
         현행 법령 · {LEGAL_VERIFIED_ON} 확인
       </p>
 
       {/* 점검별 근거 한눈에 */}
       <section className="mt-8">
-        <h2 className="text-lg font-bold text-zinc-900">점검별 근거 조항</h2>
+        <h2 className="text-title3 text-zinc-900">점검별 근거 조항</h2>
         <ul className="mt-3 divide-y divide-zinc-100 rounded-2xl ring-1 ring-zinc-200">
           {RULE_IDS.map((id) => (
-            <li key={id} id={id} className="flex scroll-mt-6 gap-3 px-4 py-3 text-sm">
+            <li key={id} id={id} className="flex scroll-mt-6 gap-3 px-4 py-3 text-body-sm">
               <span className="w-24 shrink-0 font-semibold text-zinc-900">{RULE_TITLES[id]}</span>
               <span>
                 {LEGAL_SOURCES.flatMap((s) =>
@@ -56,14 +56,14 @@ export default function LegalPage() {
 
       {/* 법령별 원문 */}
       {LEGAL_SOURCES.map((source) => (
-        <section key={source.name} className="mt-10">
+        <section key={source.name} className="mt-8">
           <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-            <h2 className="text-lg font-bold text-zinc-900">{source.name}</h2>
-            <a href={lawUrl(source)} className="text-sm text-blue-700 underline underline-offset-2">
+            <h2 className="text-title3 text-zinc-900">{source.name}</h2>
+            <a href={lawUrl(source)} className="text-body-sm text-blue-700 underline underline-offset-2">
               법제처에서 전문 보기
             </a>
           </div>
-          <p className="text-xs text-zinc-500">{source.version}</p>
+          <p className="text-caption text-zinc-500">{source.version}</p>
 
           <div className="mt-3 space-y-3">
             {source.articles.map((a) => (
@@ -73,22 +73,22 @@ export default function LegalPage() {
                     {a.ref} <span className="font-semibold text-zinc-500">({a.title})</span>
                   </h3>
                   {a.rules.map((r) => (
-                    <span key={r} className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                    <span key={r} className="rounded-full bg-blue-50 px-2 py-0.5 text-caption font-semibold text-blue-700">
                       {RULE_TITLES[r]}
                     </span>
                   ))}
                   {a.reference && (
-                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-semibold text-zinc-600">
+                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-caption font-semibold text-zinc-600">
                       참고 · 판정에 미반영
                     </span>
                   )}
                 </div>
-                <blockquote className="mt-2 border-l-4 border-zinc-200 pl-3 text-sm text-zinc-800">{a.text}</blockquote>
-                <p className="mt-3 text-sm">
+                <blockquote className="mt-2 border-l-4 border-zinc-200 pl-3 text-body-sm text-zinc-800">{a.text}</blockquote>
+                <p className="mt-3 text-body-sm">
                   <span className="font-semibold text-zinc-900">페이체크에서는 </span>
                   {a.use}
                 </p>
-                <a href={lawUrl(source, a)} className="mt-2 inline-block text-xs text-blue-700 underline underline-offset-2">
+                <a href={lawUrl(source, a)} className="mt-2 inline-block text-caption text-blue-700 underline underline-offset-2">
                   {shortName(source.name)} {a.jo} 원문 보기
                 </a>
               </article>
@@ -98,20 +98,20 @@ export default function LegalPage() {
       ))}
 
       {/* 1350 상담 */}
-      <section className="mt-10">
-        <h2 className="text-lg font-bold text-zinc-900">고용노동부 상담센터에 확인한 내용</h2>
-        <p className="mt-1 text-sm">
+      <section className="mt-8">
+        <h2 className="text-title3 text-zinc-900">고용노동부 상담센터에 확인한 내용</h2>
+        <p className="mt-1 text-body-sm">
           법 조문만으로 정하기 어려운 부분은 고용노동부 고객상담센터(1350)에 전화로 물어보고 판정 기준에 반영했어요. (
           {CONSULTATION_DATE} 상담)
         </p>
         <ul className="mt-3 space-y-2">
           {CONSULTATIONS.map((c) => (
-            <li key={c.q} className="rounded-2xl p-4 text-sm ring-1 ring-zinc-200">
+            <li key={c.q} className="rounded-2xl p-4 text-body-sm ring-1 ring-zinc-200">
               <p className="font-semibold text-zinc-900">Q. {c.q}</p>
               <p className="mt-1">A. {c.a}</p>
               <p className="mt-2 flex flex-wrap gap-1">
                 {c.rules.map((r) => (
-                  <span key={r} className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                  <span key={r} className="rounded-full bg-blue-50 px-2 py-0.5 text-caption font-semibold text-blue-700">
                     {RULE_TITLES[r]}
                   </span>
                 ))}
@@ -119,19 +119,19 @@ export default function LegalPage() {
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-xs text-zinc-500">전화 상담 답변은 일반적인 안내라서, 개별 사안은 다르게 판단될 수 있어요.</p>
+        <p className="mt-2 text-caption text-zinc-500">전화 상담 답변은 일반적인 안내라서, 개별 사안은 다르게 판단될 수 있어요.</p>
       </section>
 
       {/* 최저임금액 */}
-      <section className="mt-10">
-        <h2 className="text-lg font-bold text-zinc-900">연도별 최저임금 (시간급)</h2>
-        <p className="mt-1 text-sm">
+      <section className="mt-8">
+        <h2 className="text-title3 text-zinc-900">연도별 최저임금 (시간급)</h2>
+        <p className="mt-1 text-body-sm">
           최저임금액은 법 조문이 아니라 고용노동부 장관이 해마다 고시해요. 최저임금·수습 감액 점검은 아래 금액을 써요.{" "}
           <a href="https://www.minimumwage.go.kr" className="text-blue-700 underline underline-offset-2">
             최저임금위원회
           </a>
         </p>
-        <table className="mt-3 w-full overflow-hidden rounded-2xl text-sm ring-1 ring-zinc-200">
+        <table className="mt-3 w-full overflow-hidden rounded-2xl text-body-sm ring-1 ring-zinc-200">
           <thead className="bg-zinc-50 text-zinc-500">
             <tr>
               <th className="px-4 py-2 text-left font-semibold">연도</th>
@@ -149,7 +149,7 @@ export default function LegalPage() {
         </table>
       </section>
 
-      <p className="mt-10 border-t border-zinc-200 pt-4 text-xs text-zinc-500">
+      <p className="mt-8 border-t border-zinc-200 pt-4 text-caption text-zinc-500">
         페이체크의 결과는 참고용 점검이며 법률 판단이 아니에요. 법령은 바뀔 수 있으니 정확한 확인은 고용노동부
         고객상담센터(국번 없이 1350)에 문의해 주세요.
       </p>

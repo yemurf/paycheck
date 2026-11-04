@@ -1,6 +1,6 @@
 "use client";
 
-import { PenLine, X, ZoomIn } from "lucide-react";
+import { PenLine, Plus, X, ZoomIn } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ApiError, extractContract } from "@/lib/api-client";
 import type { ContractExtraction } from "@/lib/contract-schema";
@@ -109,7 +109,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
 
       <div className="flex-1">
         {isSample ? (
-          <p className="mb-4 squircle-2xl bg-blue-50 px-4 py-3 text-sm leading-relaxed text-blue-800">
+          <p className="squircle-2xl bg-blue-50 p-4 text-body text-blue-800">
             가상의 카페 계약서예요. 아래 <strong>분석하기</strong>를 눌러 실제로 점검되는 과정을 체험해 보세요.
           </p>
         ) : (
@@ -117,7 +117,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
         )}
 
         {photos.length > 0 && (
-          <ul className="mt-5 grid grid-cols-2 gap-3">
+          <ul className="mt-6 grid grid-cols-2 gap-3">
             {photos.map((p, i) => (
               <li key={p.id} className="relative animate-screen-in">
                 <button
@@ -131,21 +131,24 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
                     alt={`계약서 ${i + 1}장`}
                     className="aspect-[3/4] w-full object-cover object-top"
                   />
-                  <span className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-gradient-to-t from-black/60 to-transparent pt-6 pb-2 text-xs font-semibold text-white">
+                  <span className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-gradient-to-t from-black/60 to-transparent pt-6 pb-2 text-caption font-semibold text-white">
                     <ZoomIn aria-hidden className="size-3.5" />
                     눌러서 크게 보기
                   </span>
                 </button>
-                <span className="absolute top-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-xs font-semibold text-white">
+                <span className="absolute top-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-caption font-semibold text-white">
                   {p.fromPdf ? `${i + 1}장 · PDF` : `${i + 1}장`}
                 </span>
                 {!isSample && (
                   <button
                     onClick={() => removePhoto(p.id)}
                     aria-label={`${i + 1}장 빼기`}
-                    className="absolute top-1.5 right-1.5 flex size-7 items-center justify-center rounded-full bg-black/60 text-white"
+                    className="absolute top-0 right-0 flex size-11 items-center justify-center"
                   >
-                    <X aria-hidden className="size-4" />
+                    {/* 보이는 원은 28px 그대로, 누르는 영역만 44px */}
+                    <span className="flex size-7 items-center justify-center rounded-full bg-black/60 text-white">
+                      <X aria-hidden className="size-4" />
+                    </span>
                   </button>
                 )}
               </li>
@@ -154,9 +157,9 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
               <li>
                 <button
                   onClick={() => input.current?.click()}
-                  className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-1 squircle-xl border-2 border-dashed border-zinc-300 text-sm text-zinc-500 transition active:scale-[0.98]"
+                  className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-2 squircle-xl border-2 border-dashed border-zinc-300 text-body-sm font-semibold text-zinc-500 transition active:scale-[0.98]"
                 >
-                  <span className="text-2xl">＋</span>
+                  <Plus aria-hidden className="size-6" strokeWidth={1.75} />
                   다음 장 추가
                 </button>
               </li>
@@ -167,7 +170,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
 
       <div className="mt-6 space-y-3 pb-4">
         {error && <ErrorBox>{error}</ErrorBox>}
-        {notice && <p className="squircle-xl bg-zinc-100 px-4 py-3 text-sm text-zinc-700">{notice}</p>}
+        {notice && <p className="squircle-xl bg-zinc-100 px-4 py-3 text-body-sm text-zinc-700">{notice}</p>}
         {photos.length === 0 ? (
           <PrimaryButton disabled={converting} onClick={() => input.current?.click()}>
             {converting ? "PDF를 여는 중이에요…" : "가린 사진이나 PDF 고르기"}
@@ -176,7 +179,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
           <>
             {!isSample &&
               (hasPdf ? (
-                <p role="alert" className="squircle-xl bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900 ring-1 ring-amber-200">
+                <p role="alert" className="squircle-xl bg-amber-50 p-4 text-body text-amber-900 ring-1 ring-amber-200">
                   <strong>PDF는 올린 그대로 보내요.</strong> 사진을 눌러{" "}
                   <strong className="rounded bg-red-200 box-decoration-clone px-1 text-zinc-900">
                     주민등록번호나 계좌번호가 보이는지 확인해 주세요.
@@ -184,9 +187,9 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
                   보이면 ✕로 빼고, 화면을 캡처해 사진 앱에서 가린 뒤 사진으로 올려 주세요.
                 </p>
               ) : (
-                <p className="text-center text-sm text-zinc-500">주민등록번호와 계좌번호가 가려졌는지 한 번 더 확인해 주세요.</p>
+                <p className="text-center text-body-sm text-zinc-500">주민등록번호와 계좌번호가 가려졌는지 한 번 더 확인해 주세요.</p>
               ))}
-            <PrimaryButton disabled={loading || converting} onClick={submit}>
+            <PrimaryButton arrow disabled={loading || converting} onClick={submit}>
               분석하기
             </PrimaryButton>
             {!isSample && photos.length < MAX_PHOTOS && (
@@ -220,7 +223,7 @@ function PhotoViewer({ photo, onClose }: { photo: Photo; onClose: () => void }) 
       <div className="flex items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3">
         <button
           onClick={() => setZoomed(!zoomed)}
-          className="flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white active:bg-white/25"
+          className="flex min-h-11 items-center gap-1 rounded-full bg-white/15 px-4 text-body-sm font-semibold text-white active:bg-white/25"
         >
           {zoomed ? (
             "화면에 맞추기"
@@ -234,7 +237,7 @@ function PhotoViewer({ photo, onClose }: { photo: Photo; onClose: () => void }) 
         <button
           onClick={onClose}
           aria-label="닫기"
-          className="flex size-10 items-center justify-center rounded-full bg-white/15 text-white active:bg-white/25"
+          className="flex size-11 items-center justify-center rounded-full bg-white/15 text-white active:bg-white/25"
         >
           <X aria-hidden className="size-5" />
         </button>
@@ -247,40 +250,50 @@ function PhotoViewer({ photo, onClose }: { photo: Photo; onClose: () => void }) 
           className={zoomed ? "w-[220%] max-w-none" : "mx-auto h-full w-full object-contain"}
         />
       </div>
-      <p className="px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] text-center text-xs text-white/60">
+      <p className="px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] text-center text-caption text-white/70">
         {zoomed ? "손가락으로 밀어서 볼 수 있어요" : "두 번 눌러도 확대돼요"}
       </p>
     </div>
   );
 }
 
-// 사진 앱에서 직접 가리는 방법 안내
+// 사진 앱에서 직접 가리는 방법 안내.
+// 노란색은 '직접 확인해야 하는 것'(확인 필요, AI가 잘 못 읽은 값, PDF 경고)에만 쓰고, 하는 방법 안내는 파란색으로 둔다.
 function MaskGuide() {
   return (
-    <div className="space-y-3">
-      <div className="squircle-2xl bg-amber-50 p-4 ring-1 ring-amber-200">
-        <p className="flex items-center gap-1.5 font-semibold text-amber-900">
-          <PenLine aria-hidden className="size-4" />
+    <div className="space-y-4">
+      <div className="squircle-2xl bg-blue-50 p-4">
+        <p className="flex items-center gap-2 text-headline text-blue-800">
+          <PenLine aria-hidden className="size-5 shrink-0" />
           올리기 전에 직접 가려 주세요
         </p>
-        <p className="mt-1 text-sm leading-relaxed text-amber-900/80">
-          주민등록번호와 계좌번호를 사진 앱의 펜으로 칠한 뒤 올려 주세요. 가린 사진만 서버로 보내요.
+        <p className="mt-2 text-body text-zinc-700">
+          <strong className="font-semibold text-zinc-900">주민등록번호와 계좌번호</strong>를 사진 앱의 펜으로 칠한 뒤 올려
+          주세요. 가린 사진만 서버로 보내요.
         </p>
-        <dl className="mt-3 space-y-1.5 text-sm text-amber-900/80">
+        <dl className="mt-3 space-y-1 text-body-sm text-zinc-700">
           <div className="flex gap-2">
-            <dt className="w-16 shrink-0 font-semibold text-amber-900">아이폰</dt>
+            <dt className="w-12 shrink-0 font-semibold text-blue-800">아이폰</dt>
             <dd>사진 → 편집 → 마크업(펜) → 칠하고 완료</dd>
           </div>
           <div className="flex gap-2">
-            <dt className="w-16 shrink-0 font-semibold text-amber-900">갤럭시</dt>
+            <dt className="w-12 shrink-0 font-semibold text-blue-800">갤럭시</dt>
             <dd>갤러리 → 편집(연필) → 그리기 → 칠하고 저장</dd>
           </div>
         </dl>
       </div>
-      <ul className="space-y-1 px-1 text-sm text-zinc-500">
-        <li>· 계약서 전체가 나오게, 밝은 곳에서 찍은 사진이 좋아요</li>
-        <li>· 계약서가 두 장이면 두 장 모두 올려 주세요</li>
-        <li>· PDF는 주민등록번호와 계좌번호가 가려진 것만 올려 주세요. 가려져 있지 않다면 화면을 캡처해 사진 앱에서 가린 뒤 사진으로 올려 주세요</li>
+      {/* 줄이 바뀌어도 글머리 기호 뒤로 들여 쓰이게 기호와 글을 나눈다 */}
+      <ul className="space-y-1 px-1 text-body-sm text-zinc-600">
+        {[
+          "계약서 전체가 나오게, 밝은 곳에서 찍은 사진이 좋아요",
+          "계약서가 두 장이면 두 장 모두 올려 주세요",
+          "PDF는 주민등록번호와 계좌번호가 가려진 것만 올려 주세요. 가려져 있지 않다면 화면을 캡처해 사진 앱에서 가린 뒤 사진으로 올려 주세요",
+        ].map((tip) => (
+          <li key={tip} className="flex gap-2">
+            <span aria-hidden>·</span>
+            <span>{tip}</span>
+          </li>
+        ))}
       </ul>
     </div>
   );

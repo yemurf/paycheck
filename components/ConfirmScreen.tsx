@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  ArrowRight,
   CalendarCheck,
-  CalendarDays,
   CalendarRange,
   Check,
   ChevronDown,
+  Clock,
   Coins,
+  Plus,
   Sprout,
   TreePalm,
   TriangleAlert,
@@ -56,8 +56,12 @@ const HOLIDAY_PAY: Record<string, string> = {
   none: "없다고 적혀 있어요",
 };
 
-const inputClass =
-  "mt-1 w-full squircle-xl border border-zinc-300 bg-white px-3 py-2.5 text-base outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+// 입력 칸은 16px(iOS 자동 확대 방지), 높이 44px 이상. 안쪽 여백과 폭은 쓰는 곳마다 정한다(같은 속성 클래스가 겹치지 않게)
+const inputBase =
+  "min-h-11 squircle-xl border border-zinc-300 bg-white text-body outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+const inputClass = `${inputBase} mt-1 w-full px-3 py-2`;
+// 필수인데 아직 답하지 않은 것: 노란색(확인 필요)과 구분해 파란색으로
+const REQUIRED_BADGE = "rounded-full bg-blue-100 px-2 py-0.5 text-caption font-semibold text-blue-700";
 
 function toNumber(value: string): number | null {
   if (value.trim() === "") return null;
@@ -195,7 +199,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
             <Missing>금액 못 찾음</Missing>
           ) : (
             <>
-              <span className="mr-1.5 text-base font-medium text-zinc-500">
+              <span className="mr-2 text-body font-semibold text-zinc-500">
                 {c.wage.type ? WAGE_TYPE[c.wage.type] : "급여"}
               </span>
               {formatWon(c.wage.amount)}
@@ -232,8 +236,8 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
         }
       >
         <label
-          className={`mt-3 block squircle-xl px-3 py-2.5 text-sm font-medium transition ${
-            state.wageConfirmed ? "bg-blue-50 text-blue-800" : "bg-white ring-1 ring-amber-300"
+          className={`mt-4 block squircle-xl p-3 text-body font-semibold transition ${
+            state.wageConfirmed ? "bg-blue-50 text-blue-800" : "bg-white text-zinc-900 ring-1 ring-blue-300"
           }`}
         >
           <span className="flex items-center gap-2">
@@ -245,10 +249,10 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
               onChange={(e) => onChange({ ...state, wageConfirmed: e.target.checked })}
             />
             계약서의 금액과 같아요
-            <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">필수</span>
+            <span className={REQUIRED_BADGE}>필수</span>
           </span>
           {!state.wageConfirmed && (
-            <span className="mt-1 block pl-7 text-xs font-normal text-amber-800">
+            <span className="mt-1 block pl-7 text-body-sm text-zinc-600">
               숫자를 잘못 읽을 수 있어서, 체크해야 점검할 수 있어요.
             </span>
           )}
@@ -258,7 +262,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
 
     schedule: (
       <ReviewCard
-        icon={CalendarDays}
+        icon={Clock}
         title="근무 일정"
         attention={attention.schedule}
         evidence={evidence("schedule")}
@@ -278,7 +282,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
               {scheduleGroups(c.schedule).map((g) => (
                 <span key={g.days.join()} className="block">
                   {g.days.join("·")} <span className="tabular-nums">{g.time}</span>
-                  <span className="block text-sm font-normal text-zinc-500">{g.rest}</span>
+                  <span className="block text-body-sm text-zinc-500">{g.rest}</span>
                 </span>
               ))}
             </span>
@@ -286,7 +290,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
         }
         editor={
           <>
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex min-h-11 items-center gap-2 text-body">
               <input
                 type="checkbox"
                 className="size-5 accent-blue-600"
@@ -300,13 +304,13 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
                 {c.schedule.map((entry, i) => (
                   <div
                     key={i}
-                    className={`grid grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-x-1.5 gap-y-1.5 squircle-xl p-2 ${
+                    className={`grid grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-x-1 gap-y-2 squircle-xl p-2 ${
                       isLow(`schedule[${i}]`) ? "bg-amber-50 ring-1 ring-amber-300" : "bg-zinc-50"
                     }`}
                   >
                     <select
                       aria-label="요일"
-                      className={inputClass + " mt-0 px-1"}
+                      className={`${inputBase} w-full px-1`}
                       value={entry.day}
                       onChange={(e) =>
                         setSchedule(c.schedule.map((s, j) => (j === i ? { ...s, day: e.target.value as typeof s.day } : s)))
@@ -334,19 +338,20 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
                         setSchedule(c.schedule.map((s, j) => (j === i ? { ...s, end: toText(e.target.value) } : s)))
                       }
                     />
+                    {/* 시간 칸 폭을 지키려고 가로는 36px, 세로는 44px */}
                     <button
                       aria-label="이 근무일 삭제"
-                      className="px-1.5 text-lg text-zinc-400"
+                      className="flex h-11 w-9 items-center justify-center text-zinc-500"
                       onClick={() => setSchedule(c.schedule.filter((_, j) => j !== i))}
                     >
-                      ×
+                      <X aria-hidden className="size-5" />
                     </button>
-                    <label className="col-span-4 flex items-center gap-2 text-sm text-zinc-600">
+                    <label className="col-span-4 flex items-center gap-2 text-body-sm text-zinc-600">
                       휴게
                       <input
                         inputMode="numeric"
                         placeholder="적혀 있지 않음"
-                        className={inputClass + " mt-0 w-36 px-2 py-1.5"}
+                        className={`${inputBase} w-36 px-2`}
                         value={entry.break_minutes ?? ""}
                         onChange={(e) =>
                           setSchedule(
@@ -359,7 +364,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
                   </div>
                 ))}
                 <button
-                  className="w-full squircle-xl border border-dashed border-zinc-300 py-2.5 text-sm text-zinc-600 active:bg-zinc-50"
+                  className="flex min-h-11 w-full items-center justify-center gap-1 squircle-xl border border-dashed border-zinc-300 text-body-sm font-semibold text-zinc-600 active:bg-zinc-50"
                   onClick={() => {
                     const used = new Set(c.schedule.map((s) => s.day));
                     const day = DAYS.find((d) => !used.has(d)) ?? "월";
@@ -370,7 +375,8 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
                     ]);
                   }}
                 >
-                  + 근무일 추가
+                  <Plus aria-hidden className="size-4" />
+                  근무일 추가
                 </button>
               </>
             ) : (
@@ -420,7 +426,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
                 onChange={(e) => set({ contract_period: { ...c.contract_period, start: toText(e.target.value) } })}
               />
             </Labeled>
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex min-h-11 items-center gap-2 text-body">
               <input
                 type="checkbox"
                 className="size-5 accent-blue-600"
@@ -470,7 +476,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
         }
         editor={
           <>
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex min-h-11 items-center gap-2 text-body">
               <input
                 type="checkbox"
                 className="size-5 accent-blue-600"
@@ -554,14 +560,14 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
         editing={editing.has("leave")}
         onToggle={() => toggle("leave")}
         value={
-          <span className="block space-y-0.5 text-base">
+          <span className="block space-y-1 text-body">
             <YesNo yes={c.weekly_holiday.mentioned}>주휴일(쉬는 날)</YesNo>
             <YesNo yes={c.annual_leave_mentioned}>연차유급휴가</YesNo>
           </span>
         }
         editor={
           <>
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex min-h-11 items-center gap-2 text-body">
               <input
                 type="checkbox"
                 className="size-5 accent-blue-600"
@@ -570,7 +576,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
               />
               주휴일(쉬는 날)이 적혀 있어요
             </label>
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex min-h-11 items-center gap-2 text-body">
               <input
                 type="checkbox"
                 className="size-5 accent-blue-600"
@@ -619,17 +625,17 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
       {loading && <WorkingScreen title="계약서를 점검하고 있어요" steps={CHECK_STEPS} expectedSeconds={8} />}
       <ScreenHeader title="읽은 내용 확인하기" onBack={loading ? undefined : onBack} />
 
-      <div className="mb-5">
-        <p className="text-lg font-bold leading-snug">AI가 계약서에서 이렇게 읽었어요</p>
-        <p className="mt-1 text-sm text-zinc-500">계약서와 다른 곳만 고쳐 주세요. 고친 값으로 점검해요.</p>
+      <div className="mb-6">
+        <p className="text-title3">AI가 계약서에서 이렇게 읽었어요</p>
+        <p className="mt-1 text-body text-zinc-600">계약서와 다른 곳만 고쳐 주세요. 고친 값으로 점검해요.</p>
         {attentionCount > 0 && (
-          <p className="mt-3 flex items-center gap-1.5 text-sm font-semibold text-amber-800">
+          <p className="mt-3 flex items-center gap-2 text-body-sm font-semibold text-amber-800">
             <TriangleAlert aria-hidden className="size-4" />
             확인이 필요한 항목 {attentionCount}개
           </p>
         )}
         {c.low_confidence_fields.length >= 3 && (
-          <p className="mt-3 squircle-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p className="mt-3 squircle-2xl bg-amber-50 px-4 py-3 text-body text-amber-900">
             잘 안 보이는 항목이 있어요. 노란 카드를 직접 확인해 주세요.
           </p>
         )}
@@ -637,28 +643,28 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
 
       <AgeQuestion value={state.minor} onChange={(minor) => onChange({ ...state, minor })} />
 
-      <ul className="mt-3 space-y-3">
+      <ul className="mt-4 space-y-4">
         {order.map((k) => (
           <li key={k}>{cards[k]}</li>
         ))}
       </ul>
 
-      <div className="mt-3 overflow-hidden squircle-2xl bg-white ring-1 ring-zinc-200">
+      <div className="mt-4 overflow-hidden squircle-2xl bg-white ring-1 ring-zinc-200">
         <button
-          className="flex w-full items-center justify-between px-4 py-3.5 text-left active:bg-zinc-50"
+          className="flex min-h-14 w-full items-center justify-between gap-2 px-4 py-3 text-left active:bg-zinc-50"
           onClick={() => setOthersOpen(!othersOpen)}
           aria-expanded={othersOpen}
         >
           <span>
-            <span className="font-semibold">나머지 항목</span>
-            <span className="ml-2 text-sm text-zinc-500">
+            <span className="text-headline">나머지 항목</span>
+            <span className="ml-2 text-body-sm text-zinc-500">
               {othersMissing > 0 ? `못 찾은 항목 ${othersMissing}개` : "근무 장소, 업무 내용 등"}
             </span>
           </span>
           <ChevronDown aria-hidden className={`size-5 text-zinc-400 transition-transform ${othersOpen ? "rotate-180" : ""}`} />
         </button>
         {othersOpen && (
-          <div className="animate-screen-in space-y-3 border-t border-zinc-100 px-4 pt-3 pb-4">
+          <div className="animate-screen-in space-y-3 border-t border-zinc-100 p-4">
             {others.map((o) => (
               <Labeled key={o.label} label={o.label} note={o.low ? BLURRY : o.value == null ? "계약서에서 못 찾았어요" : undefined}>
                 <input
@@ -677,7 +683,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
         {!state.wageConfirmed && (
           <button
             type="button"
-            className="w-full text-center text-sm text-amber-800 underline underline-offset-2"
+            className="w-full py-1 text-center text-body-sm text-blue-700 underline underline-offset-2"
             onClick={() => {
               const box = document.getElementById("wage-confirm");
               box?.closest("label")?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -690,23 +696,14 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
         {state.minor == null && (
           <button
             type="button"
-            className="w-full text-center text-sm text-amber-800 underline underline-offset-2"
+            className="w-full py-1 text-center text-body-sm text-blue-700 underline underline-offset-2"
             onClick={() => document.getElementById("age-question")?.scrollIntoView({ behavior: "smooth", block: "center" })}
           >
             나이를 골라 주세요 (필수)
           </button>
         )}
-        {/* 마우스를 올리면 살짝 떠오르고 화살표가 앞으로 나간다. 비활성일 때는 움직이지 않는다 */}
-        <PrimaryButton
-          disabled={!state.wageConfirmed || state.minor == null || loading}
-          onClick={submit}
-          className="group flex items-center justify-center gap-1.5 duration-200 ease-out enabled:hover:-translate-y-0.5 enabled:hover:bg-blue-700 enabled:hover:shadow-lg enabled:hover:shadow-blue-600/30"
-        >
+        <PrimaryButton arrow disabled={!state.wageConfirmed || state.minor == null || loading} onClick={submit}>
           점검하기
-          <ArrowRight
-            aria-hidden
-            className="size-5 transition-transform duration-200 ease-out group-enabled:group-hover:translate-x-1"
-          />
         </PrimaryButton>
       </div>
     </div>
@@ -721,7 +718,7 @@ function AgeQuestion({ value, onChange }: { value: boolean | null; onChange: (mi
       role="radio"
       aria-checked={value === minor}
       onClick={() => onChange(minor)}
-      className={`flex-1 squircle-xl px-3 py-2.5 text-sm font-semibold transition active:scale-[0.98] ${
+      className={`min-h-11 flex-1 squircle-xl px-3 py-2 text-body font-semibold transition active:scale-[0.98] ${
         value === minor ? "bg-blue-600 text-white" : "bg-white text-zinc-700 ring-1 ring-zinc-300"
       }`}
     >
@@ -732,19 +729,19 @@ function AgeQuestion({ value, onChange }: { value: boolean | null; onChange: (mi
   return (
     <section
       id="age-question"
-      className={`scroll-mt-6 squircle-2xl p-4 shadow-sm ring-1 ${value == null ? "bg-amber-50/70 ring-amber-300" : "bg-white ring-zinc-200"}`}
+      className={`scroll-mt-6 squircle-2xl bg-white p-4 shadow-sm ring-1 ${value == null ? "ring-blue-300" : "ring-zinc-200"}`}
     >
-      <h2 className="flex items-center gap-1.5 text-sm font-semibold text-zinc-500">
+      <h2 className="flex items-center gap-2 text-body-sm font-semibold text-zinc-500">
         나이
-        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">필수</span>
+        <span className={REQUIRED_BADGE}>필수</span>
       </h2>
-      <p className="mt-1.5 font-bold text-zinc-900">근무를 시작하는 날, 만 18세 미만인가요?</p>
+      <p className="mt-1 text-headline text-zinc-900">근무를 시작하는 날, 만 18세 미만인가요?</p>
       <div role="radiogroup" aria-label="만 18세 미만인지" className="mt-3 flex gap-2">
         {option(true, "18세 미만이에요")}
         {option(false, "18세 이상이에요")}
       </div>
       {value === true && (
-        <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+        <p className="mt-3 text-body-sm text-zinc-600">
           18세 미만은 일할 수 있는 시간과 필요한 서류가 따로 있어서 함께 확인해 드려요.
         </p>
       )}
@@ -779,31 +776,34 @@ function ReviewCard({
       className={`squircle-2xl p-4 shadow-sm ring-1 ${attention ? "bg-amber-50/70 ring-amber-300" : "bg-white ring-zinc-200"}`}
     >
       <div className="flex items-center justify-between gap-2">
-        <h2 className="flex items-center gap-1.5 text-sm font-semibold text-zinc-500">
+        <h2 className="flex items-center gap-2 text-body-sm font-semibold text-zinc-500">
           <Icon aria-hidden className="size-4" />
           {title}
         </h2>
-        <button
-          onClick={onToggle}
-          aria-expanded={editing}
-          className={`rounded-full px-3 py-1 text-sm font-semibold transition active:scale-95 ${
-            editing ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-700"
-          }`}
-        >
-          {editing ? "완료" : "수정"}
+        {/* 보이는 알약은 30px, 누르는 영역은 바깥 8px씩 더해 46px. 음수 여백으로 줄 높이는 그대로 */}
+        <button onClick={onToggle} aria-expanded={editing} className="group -my-2 -mr-2 p-2">
+          <span
+            className={`block rounded-full px-3 py-1 text-body-sm font-semibold transition group-active:scale-95 ${
+              editing ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-700"
+            }`}
+          >
+            {editing ? "완료" : "수정"}
+          </span>
         </button>
       </div>
 
-      <div className="mt-1.5 text-xl font-bold leading-snug text-zinc-900">{value}</div>
-      {evidence && <p className="mt-1.5 text-xs leading-relaxed text-zinc-500">계약서: “{evidence}”</p>}
+      <div className="mt-1 text-title2 text-zinc-900">{value}</div>
+      {evidence && <p className="mt-2 text-caption text-zinc-500">계약서: “{evidence}”</p>}
       {attention && (
-        <p className="mt-2 flex gap-1.5 text-sm font-medium text-amber-800">
-          <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
+        <p className="mt-2 flex gap-2 text-body text-amber-800">
+          <span className="flex h-[1lh] shrink-0 items-center">
+            <TriangleAlert aria-hidden className="size-4" />
+          </span>
           {attention}
         </p>
       )}
 
-      {editing && <div className="mt-3 animate-screen-in space-y-3 border-t border-zinc-200/70 pt-3">{editor}</div>}
+      {editing && <div className="mt-4 animate-screen-in space-y-3 border-t border-zinc-200/70 pt-4">{editor}</div>}
       {children}
     </section>
   );
@@ -812,11 +812,11 @@ function ReviewCard({
 function Labeled({ label, note, children }: { label: string; note?: string; children: ReactNode }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-zinc-700">
+      <label className="block text-body-sm text-zinc-600">
         {label}
         {children}
       </label>
-      {note && <p className="mt-1 text-xs text-amber-800">{note}</p>}
+      {note && <p className="mt-1 text-caption text-amber-800">{note}</p>}
     </div>
   );
 }
@@ -827,7 +827,7 @@ function Missing({ children }: { children: ReactNode }) {
 
 function YesNo({ yes, children }: { yes: boolean; children: ReactNode }) {
   return (
-    <span className="flex items-center gap-1.5 font-semibold">
+    <span className="flex items-center gap-2 font-semibold">
       {yes ? (
         <Check aria-hidden className="size-4 text-green-600" />
       ) : (

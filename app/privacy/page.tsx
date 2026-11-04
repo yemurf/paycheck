@@ -10,13 +10,13 @@ export const metadata: Metadata = {
 // 사실과 다르면 안 되는 문서다. 처리 방식(전송처, 저장 여부)을 바꾸면 이 페이지도 같이 고친다.
 export default function PrivacyPage() {
   return (
-    <main className="mx-auto w-full max-w-md px-4 py-6 leading-relaxed text-zinc-700">
-      <Link href="/" className="-ml-1 inline-flex items-center gap-0.5 text-sm text-blue-600">
+    <main className="mx-auto w-full max-w-md px-5 py-6 text-body text-zinc-700">
+      <Link href="/" className="-ml-1 inline-flex min-h-11 items-center gap-1 text-body-sm text-blue-600">
         <ChevronLeft aria-hidden className="size-4" />
         페이체크로 돌아가기
       </Link>
-      <h1 className="mt-4 text-xl font-bold text-zinc-900">개인정보 처리 안내</h1>
-      <p className="mt-2 text-sm text-zinc-500">페이체크는 회원가입 없이 쓰고, 아무것도 저장하지 않아요.</p>
+      <h1 className="mt-2 text-title2 text-zinc-900">개인정보 처리 안내</h1>
+      <p className="mt-2 text-body-sm text-zinc-500">페이체크는 회원가입 없이 쓰고, 아무것도 저장하지 않아요.</p>
 
       <Section title="무엇을 받나요">
         <ul className="list-disc space-y-1 pl-5">
@@ -67,8 +67,8 @@ export default function PrivacyPage() {
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="mt-6 text-sm">
-      <h2 className="mb-1.5 text-base font-semibold text-zinc-900">{title}</h2>
+    <section className="mt-8">
+      <h2 className="mb-2 text-headline text-zinc-900">{title}</h2>
       {children}
     </section>
   );

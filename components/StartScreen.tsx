@@ -28,39 +28,42 @@ export function StartScreen({ onStart, onSample, onNoContract, sampleLoading }: 
         <div className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element -- 정적 아이콘 */}
           <img src="/icons/icon.svg" alt="" width={32} height={32} className="squircle-mask" />
-          <span className="font-bold text-blue-600">페이체크</span>
+          <span className="text-headline font-bold text-blue-600">페이체크</span>
         </div>
 
-        <h1 className="mt-6 text-[28px] font-bold leading-[1.3] tracking-tight">
+        <h1 className="mt-6 text-title1">
           알바 근로계약서,
           <br />
           사인하기 전에 확인해 보세요
         </h1>
-        <p className="mt-3 leading-relaxed text-zinc-600">
+        <p className="mt-3 text-body text-zinc-600">
           최저임금, 수습 감액, 주휴수당, 휴게시간, 필수 항목이 근로기준법·최저임금법에 맞는지 확인해 드려요.
         </p>
 
-        <p className="mt-4 text-sm text-zinc-500">{BADGES.join(" · ")}</p>
+        <p className="mt-4 text-body-sm text-zinc-500">{BADGES.join(" · ")}</p>
 
         <ol className="mt-8 space-y-4">
           {STEPS.map((s, i) => (
             <li key={s.title} className="flex gap-3">
-              <span className="w-4 shrink-0 font-bold text-blue-600">{i + 1}</span>
+              <span className="w-4 shrink-0 text-headline font-bold text-blue-600">{i + 1}</span>
               <div>
-                <p className="font-semibold">{s.title}</p>
-                <p className="text-sm text-zinc-500">{s.body}</p>
+                <p className="text-headline">{s.title}</p>
+                <p className="mt-1 text-body-sm text-zinc-500">{s.body}</p>
               </div>
             </li>
           ))}
         </ol>
 
-        <label className="mt-8 flex gap-3 squircle-2xl bg-zinc-50 p-4 text-sm leading-relaxed text-zinc-600 ring-1 ring-zinc-200">
-          <input
-            type="checkbox"
-            checked={agreed}
-            onChange={(e) => setAgreed(e.target.checked)}
-            className="mt-0.5 size-5 shrink-0 accent-blue-600"
-          />
+        <label className="mt-8 flex gap-3 squircle-2xl bg-zinc-50 p-4 text-body-sm text-zinc-700 ring-1 ring-zinc-200">
+          {/* 체크박스를 첫 줄 가운데에 맞춘다 (1lh = 한 줄 높이라 행간이 바뀌어도 맞는다) */}
+          <span className="flex h-[1lh] shrink-0 items-center">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="size-5 accent-blue-600"
+            />
+          </span>
           <span>
             사진은 분석을 위해 해외 AI 서비스(OpenRouter를 거쳐 Claude AI)로 전송돼요. 페이체크는 사진과 결과를
             저장하지 않아요. 주민등록번호와 계좌번호는 <strong className="rounded bg-red-200 box-decoration-clone px-1 text-zinc-900">올리기 전에 직접 가려</strong>{" "}
@@ -73,13 +76,13 @@ export function StartScreen({ onStart, onSample, onNoContract, sampleLoading }: 
       </div>
 
       <div className="space-y-3 pt-6 pb-4">
-        <PrimaryButton disabled={!agreed} onClick={onStart}>
+        <PrimaryButton arrow disabled={!agreed} onClick={onStart}>
           내 계약서 확인하기
         </PrimaryButton>
         <SecondaryButton disabled={sampleLoading} onClick={onSample}>
           {sampleLoading ? "샘플을 불러오고 있어요…" : "샘플 계약서로 체험해 보기"}
         </SecondaryButton>
-        <button onClick={onNoContract} className="w-full py-2 text-sm text-zinc-500 underline underline-offset-2">
+        <button onClick={onNoContract} className="min-h-11 w-full text-body-sm text-zinc-500 underline underline-offset-2">
           계약서를 아직 못 받았어요
         </button>
       </div>
