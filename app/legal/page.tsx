@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { CONSULTATION_DATE, CONSULTATIONS, LEGAL_SOURCES, LEGAL_VERIFIED_ON, RULE_TITLES, lawUrl } from "@/rules/legal-sources";
 import { formatWon } from "@/rules/helpers";
@@ -20,8 +21,9 @@ export default function LegalPage() {
 
   return (
     <main className="mx-auto w-full max-w-2xl px-5 py-6 leading-relaxed text-zinc-700">
-      <Link href="/" className="text-sm text-blue-600">
-        ‹ 페이체크로 돌아가기
+      <Link href="/" className="-ml-1 inline-flex items-center gap-0.5 text-sm text-blue-600">
+        <ChevronLeft aria-hidden className="size-4" />
+        페이체크로 돌아가기
       </Link>
       <h1 className="mt-4 text-2xl font-bold text-zinc-900">법적 근거</h1>
       <p className="mt-2">
@@ -58,7 +60,7 @@ export default function LegalPage() {
           <div className="flex flex-wrap items-baseline justify-between gap-x-3">
             <h2 className="text-lg font-bold text-zinc-900">{source.name}</h2>
             <a href={lawUrl(source)} className="text-sm text-blue-700 underline underline-offset-2">
-              법제처에서 전문 보기 ↗
+              법제처에서 전문 보기
             </a>
           </div>
           <p className="text-xs text-zinc-500">{source.version}</p>
@@ -87,7 +89,7 @@ export default function LegalPage() {
                   {a.use}
                 </p>
                 <a href={lawUrl(source, a)} className="mt-2 inline-block text-xs text-blue-700 underline underline-offset-2">
-                  {shortName(source.name)} {a.jo} 원문 보기 ↗
+                  {shortName(source.name)} {a.jo} 원문 보기
                 </a>
               </article>
             ))}
@@ -126,7 +128,7 @@ export default function LegalPage() {
         <p className="mt-1 text-sm">
           최저임금액은 법 조문이 아니라 고용노동부 장관이 해마다 고시해요. 최저임금·수습 감액 점검은 아래 금액을 써요.{" "}
           <a href="https://www.minimumwage.go.kr" className="text-blue-700 underline underline-offset-2">
-            최저임금위원회 ↗
+            최저임금위원회
           </a>
         </p>
         <table className="mt-3 w-full overflow-hidden rounded-2xl text-sm ring-1 ring-zinc-200">

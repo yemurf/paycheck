@@ -1,5 +1,19 @@
 "use client";
 
+import {
+  ArrowRight,
+  CalendarCheck,
+  CalendarDays,
+  CalendarRange,
+  Check,
+  ChevronDown,
+  Coins,
+  Sprout,
+  TreePalm,
+  TriangleAlert,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { ApiError, checkContract } from "@/lib/api-client";
 import type { ContractExtraction } from "@/lib/contract-schema";
@@ -41,7 +55,7 @@ const HOLIDAY_PAY: Record<string, string> = {
 };
 
 const inputClass =
-  "mt-1 w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-base outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+  "mt-1 w-full squircle-xl border border-zinc-300 bg-white px-3 py-2.5 text-base outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
 function toNumber(value: string): number | null {
   if (value.trim() === "") return null;
@@ -168,7 +182,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
   const cards: Record<CardKey, ReactNode> = {
     wage: (
       <ReviewCard
-        icon="💰"
+        icon={Coins}
         title="급여"
         attention={attention.wage}
         evidence={evidence("wage.amount")}
@@ -216,7 +230,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
         }
       >
         <label
-          className={`mt-3 block rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+          className={`mt-3 block squircle-xl px-3 py-2.5 text-sm font-medium transition ${
             state.wageConfirmed ? "bg-blue-50 text-blue-800" : "bg-white ring-1 ring-amber-300"
           }`}
         >
@@ -242,7 +256,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
 
     schedule: (
       <ReviewCard
-        icon="🗓"
+        icon={CalendarDays}
         title="근무 일정"
         attention={attention.schedule}
         evidence={evidence("schedule")}
@@ -284,7 +298,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
                 {c.schedule.map((entry, i) => (
                   <div
                     key={i}
-                    className={`grid grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-x-1.5 gap-y-1.5 rounded-xl p-2 ${
+                    className={`grid grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-x-1.5 gap-y-1.5 squircle-xl p-2 ${
                       isLow(`schedule[${i}]`) ? "bg-amber-50 ring-1 ring-amber-300" : "bg-zinc-50"
                     }`}
                   >
@@ -343,7 +357,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
                   </div>
                 ))}
                 <button
-                  className="w-full rounded-xl border border-dashed border-zinc-300 py-2.5 text-sm text-zinc-600 active:bg-zinc-50"
+                  className="w-full squircle-xl border border-dashed border-zinc-300 py-2.5 text-sm text-zinc-600 active:bg-zinc-50"
                   onClick={() => {
                     const used = new Set(c.schedule.map((s) => s.day));
                     const day = DAYS.find((d) => !used.has(d)) ?? "월";
@@ -378,7 +392,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
 
     period: (
       <ReviewCard
-        icon="📆"
+        icon={CalendarRange}
         title="계약기간"
         attention={attention.period}
         evidence={evidence("contract_period")}
@@ -438,7 +452,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
 
     probation: (
       <ReviewCard
-        icon="🌱"
+        icon={Sprout}
         title="수습"
         attention={attention.probation}
         evidence={evidence("probation")}
@@ -500,7 +514,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
 
     holidayPay: (
       <ReviewCard
-        icon="🎁"
+        icon={CalendarCheck}
         title="주휴수당"
         attention={attention.holidayPay}
         evidence={evidence("wage.weekly_holiday_pay")}
@@ -532,7 +546,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
 
     leave: (
       <ReviewCard
-        icon="🏖"
+        icon={TreePalm}
         title="휴일과 휴가"
         attention={attention.leave}
         editing={editing.has("leave")}
@@ -607,12 +621,13 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
         <p className="text-lg font-bold leading-snug">AI가 계약서에서 이렇게 읽었어요</p>
         <p className="mt-1 text-sm text-zinc-500">계약서와 다른 곳만 고쳐 주세요. 고친 값으로 점검해요.</p>
         {attentionCount > 0 && (
-          <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-900">
-            ⚠ 확인이 필요한 항목 {attentionCount}개
+          <p className="mt-3 flex items-center gap-1.5 text-sm font-semibold text-amber-800">
+            <TriangleAlert aria-hidden className="size-4" />
+            확인이 필요한 항목 {attentionCount}개
           </p>
         )}
         {c.low_confidence_fields.length >= 3 && (
-          <p className="mt-3 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p className="mt-3 squircle-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
             잘 안 보이는 항목이 있어요. 노란 카드를 직접 확인해 주세요.
           </p>
         )}
@@ -624,7 +639,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
         ))}
       </ul>
 
-      <div className="mt-3 overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200">
+      <div className="mt-3 overflow-hidden squircle-2xl bg-white ring-1 ring-zinc-200">
         <button
           className="flex w-full items-center justify-between px-4 py-3.5 text-left active:bg-zinc-50"
           onClick={() => setOthersOpen(!othersOpen)}
@@ -636,9 +651,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
               {othersMissing > 0 ? `못 찾은 항목 ${othersMissing}개` : "근무 장소, 업무 내용 등"}
             </span>
           </span>
-          <span aria-hidden className={`text-zinc-400 transition-transform ${othersOpen ? "rotate-180" : ""}`}>
-            ⌄
-          </span>
+          <ChevronDown aria-hidden className={`size-5 text-zinc-400 transition-transform ${othersOpen ? "rotate-180" : ""}`} />
         </button>
         {othersOpen && (
           <div className="animate-screen-in space-y-3 border-t border-zinc-100 px-4 pt-3 pb-4">
@@ -670,8 +683,17 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
             급여 카드의 &lsquo;계약서의 금액과 같아요&rsquo;를 체크해 주세요 (필수)
           </button>
         )}
-        <PrimaryButton disabled={!state.wageConfirmed || loading} onClick={submit}>
+        {/* 마우스를 올리면 살짝 떠오르고 화살표가 앞으로 나간다. 비활성일 때는 움직이지 않는다 */}
+        <PrimaryButton
+          disabled={!state.wageConfirmed || loading}
+          onClick={submit}
+          className="group flex items-center justify-center gap-1.5 duration-200 ease-out enabled:hover:-translate-y-0.5 enabled:hover:bg-blue-700 enabled:hover:shadow-lg enabled:hover:shadow-blue-600/30"
+        >
           점검하기
+          <ArrowRight
+            aria-hidden
+            className="size-5 transition-transform duration-200 ease-out group-enabled:group-hover:translate-x-1"
+          />
         </PrimaryButton>
       </div>
     </div>
@@ -680,7 +702,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
 
 // AI가 읽은 값 한 덩어리. 평소에는 값만 크게 보이고, "수정"을 누르면 입력 칸이 열린다.
 function ReviewCard({
-  icon,
+  icon: Icon,
   title,
   value,
   evidence,
@@ -690,7 +712,7 @@ function ReviewCard({
   editor,
   children,
 }: {
-  icon: string;
+  icon: LucideIcon;
   title: string;
   value: ReactNode;
   evidence?: string;
@@ -702,11 +724,11 @@ function ReviewCard({
 }) {
   return (
     <section
-      className={`rounded-2xl p-4 shadow-sm ring-1 ${attention ? "bg-amber-50/70 ring-amber-300" : "bg-white ring-zinc-200"}`}
+      className={`squircle-2xl p-4 shadow-sm ring-1 ${attention ? "bg-amber-50/70 ring-amber-300" : "bg-white ring-zinc-200"}`}
     >
       <div className="flex items-center justify-between gap-2">
         <h2 className="flex items-center gap-1.5 text-sm font-semibold text-zinc-500">
-          <span aria-hidden>{icon}</span>
+          <Icon aria-hidden className="size-4" />
           {title}
         </h2>
         <button
@@ -722,7 +744,12 @@ function ReviewCard({
 
       <div className="mt-1.5 text-xl font-bold leading-snug text-zinc-900">{value}</div>
       {evidence && <p className="mt-1.5 text-xs leading-relaxed text-zinc-500">계약서: “{evidence}”</p>}
-      {attention && <p className="mt-2 text-sm font-medium text-amber-800">⚠ {attention}</p>}
+      {attention && (
+        <p className="mt-2 flex gap-1.5 text-sm font-medium text-amber-800">
+          <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
+          {attention}
+        </p>
+      )}
 
       {editing && <div className="mt-3 animate-screen-in space-y-3 border-t border-zinc-200/70 pt-3">{editor}</div>}
       {children}
@@ -749,7 +776,11 @@ function Missing({ children }: { children: ReactNode }) {
 function YesNo({ yes, children }: { yes: boolean; children: ReactNode }) {
   return (
     <span className="flex items-center gap-1.5 font-semibold">
-      <span className={yes ? "text-green-600" : "text-zinc-400"}>{yes ? "✓" : "✕"}</span>
+      {yes ? (
+        <Check aria-hidden className="size-4 text-green-600" />
+      ) : (
+        <X aria-hidden className="size-4 text-zinc-400" />
+      )}
       {children}
       <span className="font-normal text-zinc-500">{yes ? "적혀 있음" : "안 보임"}</span>
     </span>

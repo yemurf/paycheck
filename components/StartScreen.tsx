@@ -27,7 +27,7 @@ export function StartScreen({ onStart, onSample, onNoContract, sampleLoading }: 
       <div className="flex-1 pt-4">
         <div className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element -- 정적 아이콘 */}
-          <img src="/icons/icon.svg" alt="" width={32} height={32} className="rounded-lg" />
+          <img src="/icons/icon.svg" alt="" width={32} height={32} className="squircle-mask" />
           <span className="font-bold text-blue-600">페이체크</span>
         </div>
 
@@ -40,20 +40,12 @@ export function StartScreen({ onStart, onSample, onNoContract, sampleLoading }: 
           최저임금, 수습 감액, 주휴수당, 휴게시간, 필수 항목이 근로기준법·최저임금법에 맞는지 확인해 드려요.
         </p>
 
-        <ul className="mt-5 flex flex-wrap gap-1.5">
-          {BADGES.map((b) => (
-            <li key={b} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-              {b}
-            </li>
-          ))}
-        </ul>
+        <p className="mt-4 text-sm text-zinc-500">{BADGES.join(" · ")}</p>
 
         <ol className="mt-8 space-y-4">
           {STEPS.map((s, i) => (
             <li key={s.title} className="flex gap-3">
-              <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
-                {i + 1}
-              </span>
+              <span className="w-4 shrink-0 font-bold text-blue-600">{i + 1}</span>
               <div>
                 <p className="font-semibold">{s.title}</p>
                 <p className="text-sm text-zinc-500">{s.body}</p>
@@ -62,7 +54,7 @@ export function StartScreen({ onStart, onSample, onNoContract, sampleLoading }: 
           ))}
         </ol>
 
-        <label className="mt-8 flex gap-3 rounded-2xl bg-zinc-50 p-4 text-sm leading-relaxed text-zinc-600 ring-1 ring-zinc-200">
+        <label className="mt-8 flex gap-3 squircle-2xl bg-zinc-50 p-4 text-sm leading-relaxed text-zinc-600 ring-1 ring-zinc-200">
           <input
             type="checkbox"
             checked={agreed}

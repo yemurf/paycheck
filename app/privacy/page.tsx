@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -10,8 +11,9 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <main className="mx-auto w-full max-w-md px-4 py-6 leading-relaxed text-zinc-700">
-      <Link href="/" className="text-sm text-blue-600">
-        ‹ 페이체크로 돌아가기
+      <Link href="/" className="-ml-1 inline-flex items-center gap-0.5 text-sm text-blue-600">
+        <ChevronLeft aria-hidden className="size-4" />
+        페이체크로 돌아가기
       </Link>
       <h1 className="mt-4 text-xl font-bold text-zinc-900">개인정보 처리 안내</h1>
       <p className="mt-2 text-sm text-zinc-500">페이체크는 회원가입 없이 쓰고, 아무것도 저장하지 않아요.</p>

@@ -1,11 +1,12 @@
 "use client";
 
+import { ChevronLeft } from "lucide-react";
 import { useEffect, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 export function PrimaryButton({ className = "", ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
-      className={`w-full rounded-2xl bg-blue-600 px-4 py-4 text-base font-semibold text-white shadow-sm shadow-blue-600/20 transition active:scale-[0.98] active:bg-blue-700 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:shadow-none disabled:active:scale-100 ${className}`}
+      className={`w-full squircle-2xl bg-blue-600 px-4 py-4 text-base font-semibold text-white shadow-sm shadow-blue-600/20 transition active:scale-[0.98] active:bg-blue-700 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:shadow-none disabled:active:scale-100 ${className}`}
       {...props}
     />
   );
@@ -14,7 +15,7 @@ export function PrimaryButton({ className = "", ...props }: ButtonHTMLAttributes
 export function SecondaryButton({ className = "", ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
-      className={`w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3.5 text-base font-medium text-zinc-800 transition active:scale-[0.98] active:bg-zinc-50 disabled:text-zinc-400 disabled:active:scale-100 ${className}`}
+      className={`w-full squircle-2xl border border-zinc-200 bg-white px-4 py-3.5 text-base font-medium text-zinc-800 transition active:scale-[0.98] active:bg-zinc-50 disabled:text-zinc-400 disabled:active:scale-100 ${className}`}
       {...props}
     />
   );
@@ -22,7 +23,7 @@ export function SecondaryButton({ className = "", ...props }: ButtonHTMLAttribut
 
 export function ErrorBox({ children }: { children: ReactNode }) {
   return (
-    <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+    <p role="alert" className="squircle-xl bg-red-50 px-4 py-3 text-sm text-red-700">
       {children}
     </p>
   );
@@ -45,7 +46,7 @@ export function CopyMessage({ message, compact = false }: { message: string; com
   const Button = compact ? SecondaryButton : PrimaryButton;
   return (
     <div>
-      <blockquote className={`rounded-xl bg-zinc-100 leading-relaxed ${compact ? "p-3 text-sm" : "p-4"}`}>
+      <blockquote className={`squircle-xl bg-zinc-100 leading-relaxed ${compact ? "p-3 text-sm" : "p-4"}`}>
         {message}
       </blockquote>
       <Button onClick={copy} className={compact ? "mt-2 py-2 text-sm" : "mt-3"}>
@@ -85,9 +86,9 @@ export function WorkingScreen({
       aria-live="polite"
       className="fixed inset-0 z-50 flex animate-screen-in flex-col items-center justify-center bg-white px-8"
     >
-      <div className="relative animate-float">
+      <div className="relative animate-float drop-shadow-[0_12px_20px_rgba(36,87,197,0.25)]">
         {/* eslint-disable-next-line @next/next/no-img-element -- 정적 아이콘 */}
-        <img src="/icons/icon.svg" alt="" width={96} height={96} className="rounded-[22px] shadow-xl shadow-blue-600/25" />
+        <img src="/icons/icon.svg" alt="" width={96} height={96} className="squircle-mask" />
         <div className="absolute inset-x-3 h-1 animate-scan rounded-full bg-white/80 shadow-[0_0_12px_4px_rgba(255,255,255,0.7)]" />
       </div>
       <p className="mt-10 text-xl font-bold text-zinc-900">{title}</p>
@@ -118,8 +119,8 @@ export function ScreenHeader({ title, onBack }: { title: string; onBack?: () => 
   return (
     <header className="mb-6 flex items-center gap-2">
       {onBack && (
-        <button onClick={onBack} aria-label="뒤로" className="-ml-2 px-2 py-1 text-xl text-zinc-600">
-          ‹
+        <button onClick={onBack} aria-label="뒤로" className="-ml-2 p-1 text-zinc-600">
+          <ChevronLeft aria-hidden className="size-6" />
         </button>
       )}
       <h1 className="text-xl font-bold">{title}</h1>
