@@ -4,7 +4,7 @@ import { formatDuration, isAtLeastOneYear, parseDate, parseTime, spanMinutes } f
 import { checkContract } from "./index";
 import { checkMinWage } from "./r1-min-wage";
 import { checkProbation } from "./r2-probation";
-import { checkWeeklyHoliday } from "./r3-weekly-holiday";
+import { checkWeeklyHoliday, minWageWithHolidayPay } from "./r3-weekly-holiday";
 import { checkBreak } from "./r4-break";
 import { checkRequiredItems } from "./r5-required-items";
 
@@ -195,10 +195,17 @@ describe("R2 수습 감액", () => {
     expect(r.status).toBe("ok");
   });
 
-  it("기간의 정함이 없는 계약은 1년 이상으로 보되 확인 필요", () => {
+  it("기간의 정함이 없는 계약도 3개월 90% 감액 가능 (1350) → 단순노무 안내만 남아 확인 필요", () => {
     const r = checkProbation(contract({ ...period("2026-11-01", null, true), ...probation(3, 0.9) }), TODAY);
     expect(r.status).toBe("check");
-    expect(r.detail).toContain("기간을 정하지 않은");
+    expect(r.detail).not.toContain("확인 중");
+    expect(r.detail).toContain("한국표준직업분류");
+  });
+
+  it("감액이 기준을 넘으면 임금체불 신고를 안내한다", () => {
+    const r = checkProbation(contract({ ...period("2026-11-01", "2027-04-30"), ...probation(3, 0.9) }), TODAY);
+    expect(r.status).toBe("problem");
+    expect(r.detail).toContain("임금체불");
   });
 });
 
@@ -217,8 +224,20 @@ describe("R3 주휴수당", () => {
     expect(checkWeeklyHoliday(contract(wage(10_320, "none")), 900).status).toBe("problem");
   });
 
-  it("'시급에 포함'만 적힘 → 확인 필요", () => {
-    expect(checkWeeklyHoliday(contract(wage(10_320, "included")), 900).status).toBe("check");
+  it("'시급에 포함', 시급이 최저시급 × 1.2보다 낮음 → 확인 필요", () => {
+    const r = checkWeeklyHoliday(contract(wage(10_320, "included")), 900, TODAY);
+    expect(r.status).toBe("check");
+    expect(r.amount?.value).toBe(12_384 - 10_320);
+  });
+
+  it("'시급에 포함', 시급이 최저시급 × 1.2 이상 → 문제 없음 (1350: 포함 자체는 법적 문제 없음)", () => {
+    expect(checkWeeklyHoliday(contract(wage(12_384, "included")), 900, TODAY).status).toBe("ok");
+    expect(checkWeeklyHoliday(contract(wage(12_383, "included")), 900, TODAY).status).toBe("check");
+  });
+
+  it("주 40시간 넘게 일하면 주휴는 8시간까지라 기준 시급이 1.2배보다 낮다", () => {
+    expect(minWageWithHolidayPay(40 * 60, 10_320)).toBe(12_384);
+    expect(minWageWithHolidayPay(48 * 60, 10_320)).toBe(12_040);
   });
 
   it("따로 준다고 적힘 → 문제 없음", () => {
@@ -278,7 +297,14 @@ describe("R5 필수 기재사항", () => {
       contract({ annual_leave_mentioned: false, weekly_holiday: { mentioned: false, day: null } }),
     );
     expect(r.status).toBe("check");
-    expect(r.missing).toEqual(["휴일(주휴일)", "연차유급휴가"]);
+    expect(r.missing).toEqual(["휴일(주휴일)"]);
+  });
+
+  it("연차만 없으면 빠진 항목이 아니라 5인 기준 안내만 (1350: 5인 미만은 안 적어도 됨)", () => {
+    const r = checkRequiredItems(contract({ annual_leave_mentioned: false }));
+    expect(r.status).toBe("ok");
+    expect(r.missing).toEqual([]);
+    expect(r.detail).toContain("5명");
   });
 });
 

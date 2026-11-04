@@ -5,8 +5,11 @@ import type { RuleResult } from "./types";
 
 const base = { id: "R2", title: "수습 감액", basis: BASIS.R2 } as const;
 
+// 단순노무 직종인지는 업무 내용만으로 정하기 어렵고 통계청 직업분류로 확인해야 한다 (1350 상담, 2026-11-03)
 const SIMPLE_LABOR_NOTE =
-  "주방 보조, 배달, 청소 같은 단순노무 업무라면 수습이어도 감액할 수 없어요.";
+  "다만 단순노무 직종이면 수습이어도 감액할 수 없어요. 단순노무인지는 업무 내용만으로 정하기 어려워서 통계청 한국표준직업분류로 확인해야 해요.";
+
+const WAGE_CLAIM_NOTE = "받아야 할 임금보다 적게 받았다면 임금체불로 고용노동부에 신고할 수 있어요.";
 
 export function checkProbation(c: ContractExtraction, today: Date): RuleResult {
   const p = c.probation;
@@ -83,16 +86,13 @@ export function checkProbation(c: ContractExtraction, today: Date): RuleResult {
       ...base,
       status: "problem",
       summary: reasons[0],
-      detail: `수습 중 시급을 ${percent}%(${formatWon(reduced)})로 줄이는 계약이에요. ${reasons.join(" ")} 수습 감액은 1년 이상 계약에서 처음 3개월까지, 최저시급의 90%까지만 가능해요.`,
+      detail: `수습 중 시급을 ${percent}%(${formatWon(reduced)})로 줄이는 계약이에요. ${reasons.join(" ")} 수습 감액은 1년 이상 계약에서 처음 3개월까지, 최저시급의 90%까지만 가능해요. ${WAGE_CLAIM_NOTE}`,
       amount,
     };
   }
 
   const notes: string[] = [];
   if (oneYear === null) notes.push("계약기간을 확인할 수 없어 1년 이상인지 판단하지 못했어요.");
-  if (c.contract_period.indefinite) {
-    notes.push("기간을 정하지 않은 계약에서 감액이 가능한지는 아직 확인 중이에요.");
-  }
   if (p.months == null) notes.push("감액 기간이 적혀 있지 않아요. 3개월 이내인지 확인해 보세요.");
   return {
     ...base,

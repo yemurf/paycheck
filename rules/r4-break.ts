@@ -47,7 +47,7 @@ export function checkBreak(c: ContractExtraction): RuleResult {
       ...base,
       status: "check",
       summary: "휴게시간이 적혀 있지 않아요.",
-      detail: `${unstated.join("·")}요일은 4시간 이상 일하는데 휴게시간이 적혀 있지 않아요. 실제로 쉬는 시간이 있는지 확인해 보세요.`,
+      detail: `${unstated.join("·")}요일은 4시간 이상 일하는데 휴게시간이 적혀 있지 않아요. 휴게시간은 계약서에 정해서 적는 게 원칙이에요. 안 적혀 있어도 가게에서 쉬는 시간을 정해 두고 매번 그때 쉬고 있다면 괜찮지만, ‘필요할 때 쉬세요’처럼 시간을 정하지 않으면 휴게시간을 줬다고 보기 어려워요.`,
     };
   }
   return {

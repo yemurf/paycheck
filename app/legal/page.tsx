@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LEGAL_SOURCES, LEGAL_VERIFIED_ON, RULE_TITLES, lawUrl } from "@/rules/legal-sources";
+import { CONSULTATION_DATE, CONSULTATIONS, LEGAL_SOURCES, LEGAL_VERIFIED_ON, RULE_TITLES, lawUrl } from "@/rules/legal-sources";
 import { formatWon } from "@/rules/helpers";
 import { MIN_WAGE_BY_YEAR } from "@/rules/standards";
 import type { RuleId } from "@/rules";
@@ -94,6 +94,31 @@ export default function LegalPage() {
           </div>
         </section>
       ))}
+
+      {/* 1350 상담 */}
+      <section className="mt-10">
+        <h2 className="text-lg font-bold text-zinc-900">고용노동부 상담센터에 확인한 내용</h2>
+        <p className="mt-1 text-sm">
+          법 조문만으로 정하기 어려운 부분은 고용노동부 고객상담센터(1350)에 전화로 물어보고 판정 기준에 반영했어요. (
+          {CONSULTATION_DATE} 상담)
+        </p>
+        <ul className="mt-3 space-y-2">
+          {CONSULTATIONS.map((c) => (
+            <li key={c.q} className="rounded-2xl p-4 text-sm ring-1 ring-zinc-200">
+              <p className="font-semibold text-zinc-900">Q. {c.q}</p>
+              <p className="mt-1">A. {c.a}</p>
+              <p className="mt-2 flex flex-wrap gap-1">
+                {c.rules.map((r) => (
+                  <span key={r} className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                    {RULE_TITLES[r]}
+                  </span>
+                ))}
+              </p>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-xs text-zinc-500">전화 상담 답변은 일반적인 안내라서, 개별 사안은 다르게 판단될 수 있어요.</p>
+      </section>
 
       {/* 최저임금액 */}
       <section className="mt-10">

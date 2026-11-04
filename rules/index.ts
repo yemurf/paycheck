@@ -27,7 +27,7 @@ export function checkContract({ contract, weeklyHours, today = new Date() }: Che
     ? [
         checkMinWage(contract, today),
         checkProbation(contract, today),
-        checkWeeklyHoliday(contract, weeklyMinutes),
+        checkWeeklyHoliday(contract, weeklyMinutes, today),
         checkBreak(contract),
         checkRequiredItems(contract),
       ]

@@ -106,7 +106,7 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
           ? BLURRY
           : null
       : state.weeklyHours === ""
-        ? "근무 시간이 주마다 달라요. 평소 일주일에 몇 시간 일하는지 입력해 주세요."
+        ? "근무 시간이 주마다 달라요. 4주 동안 평균 일주일에 몇 시간 일하는지 입력해 주세요."
         : null,
     period:
       c.contract_period.start == null && c.contract_period.indefinite !== true
@@ -358,7 +358,10 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
                 </button>
               </>
             ) : (
-              <Labeled label="평소 일주일에 몇 시간 일하나요?">
+              <Labeled
+                label="4주 동안 평균 일주일에 몇 시간 일하나요?"
+                note="4주 합계가 60시간 이상(주 평균 15시간 이상)이면 주휴수당 대상이에요."
+              >
                 <input
                   className={inputClass}
                   inputMode="decimal"

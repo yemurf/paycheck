@@ -25,17 +25,22 @@ const REQUIRED_ITEMS: { name: string; present: (c: ContractExtraction) => boolea
   { name: "근무 장소", present: (c) => c.workplace != null },
   { name: "업무 내용", present: (c) => c.job_description != null },
   { name: "휴일(주휴일)", present: (c) => c.weekly_holiday.mentioned },
-  { name: "연차유급휴가", present: (c) => c.annual_leave_mentioned },
 ];
+
+// 연차유급휴가는 상시 5인 이상 사업장만 적으면 된다 (1350 상담, 2026-11-03).
+// 1단계는 사업장 규모를 묻지 않으므로 빠진 항목으로 세지 않고 안내만 붙인다.
+const ANNUAL_LEAVE_NOTE =
+  "연차유급휴가는 계약서에 보이지 않아요. 직원이 5명 미만인 곳은 안 적어도 되지만, 5명 이상이라면 적어야 해요.";
 
 export function checkRequiredItems(c: ContractExtraction): RuleResult {
   const missing = REQUIRED_ITEMS.filter((item) => !item.present(c)).map((item) => item.name);
+  const leaveNote = c.annual_leave_mentioned ? "" : ` ${ANNUAL_LEAVE_NOTE}`;
   if (missing.length === 0) {
     return {
       ...base,
       status: "ok",
       summary: "꼭 들어가야 하는 항목이 모두 있어요.",
-      detail: "임금, 근로시간, 휴일, 휴가 등 계약서에 꼭 적어야 하는 항목이 모두 보여요.",
+      detail: `임금, 근로시간, 휴게, 휴일 등 계약서에 꼭 적어야 하는 항목이 모두 보여요.${leaveNote}`,
       missing,
     };
   }
@@ -43,8 +48,7 @@ export function checkRequiredItems(c: ContractExtraction): RuleResult {
     ...base,
     status: "check",
     summary: `계약서에 ${missing.join(", ")} 항목이 안 보여요.`,
-    detail:
-      "근로계약서에는 이 항목들을 꼭 적어야 해요. 다른 장에 있다면 사진을 추가해 주세요. 없다면 사장님께 적어 달라고 요청할 수 있어요.",
+    detail: `근로계약서에는 이 항목들을 꼭 적어야 해요. 다른 장에 있다면 사진을 추가해 주세요. 없다면 사장님께 적어 달라고 요청할 수 있어요.${leaveNote}`,
     missing,
   };
 }

@@ -25,7 +25,7 @@ export function checkMinWage(c: ContractExtraction, today: Date): RuleResult {
       ...base,
       status: "problem",
       summary: `시급 ${formatWon(wage)}이 ${startYear}년 최저시급 ${formatWon(min)}보다 낮아요.`,
-      detail: `${startYear}년 최저시급은 ${formatWon(min)}이에요. 계약서의 시급은 이보다 시간당 ${formatWon(min - wage)} 적어요.`,
+      detail: `${startYear}년 최저시급은 ${formatWon(min)}이에요. 계약서의 시급은 이보다 시간당 ${formatWon(min - wage)} 적어요. 최저시급보다 적게 받았다면 임금체불로 고용노동부에 신고할 수 있어요.`,
       amount: { label: "시간당 부족한 금액", value: min - wage },
     };
   }
