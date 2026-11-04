@@ -118,6 +118,33 @@ describe("R1 최저임금", () => {
     expect(checkMinWage(contract(period("2026-11-01", null)), TODAY).status).toBe("check");
   });
 
+  it("끝나는 날이 없는 2023년 계약은 지금(2026년) 최저시급 기준으로 부족분을 알려준다", () => {
+    const r = checkMinWage(contract({ ...period("2023-11-25", null), ...wage(10_000) }), TODAY);
+    expect(r.status).toBe("check");
+    expect(r.summary).toBe("지금도 일하고 있다면 시급이 10,320원 이상이어야 해요.");
+    expect(r.detail).toContain("계약서에 끝나는 날이 없어서");
+    expect(r.detail).toContain("2026년 최저시급은 10,320원이라 시급이 시간당 320원 올라야 해요");
+    expect(r.detail).not.toContain("2025년");
+    expect(r.detail).not.toContain("까지 이어져요");
+    expect(r.amount).toEqual({ label: "2026년 기준 시간당 올라야 할 금액", value: 320 });
+  });
+
+  it("기간을 정하지 않은 계약은 그렇다고 말한다", () => {
+    const r = checkMinWage(contract({ ...period("2023-11-25", null, true), ...wage(10_000) }), TODAY);
+    expect(r.detail).toContain("기간을 정하지 않은 계약이라");
+  });
+
+  it("끝나는 날이 없어도 아직 오르기 전이면 오르는 해를 알려준다", () => {
+    const r = checkMinWage(contract(period("2026-11-01", null)), TODAY);
+    expect(r.summary).toBe("2027년 1월 1일부터는 시급이 10,700원 이상이어야 해요.");
+    expect(r.amount?.value).toBe(380);
+  });
+
+  it("종료일이 있으면 그 날짜를 말한다", () => {
+    const r = checkMinWage(contract({ ...period("2022-07-01", "2023-06-30"), ...wage(9_160) }), TODAY);
+    expect(r.detail).toContain("계약이 2023년 6월 30일까지라 2023년 최저시급도 적용돼요");
+  });
+
   it("시급이 없으면 확인 필요", () => {
     expect(checkMinWage(contract(wage(null)), TODAY).status).toBe("check");
   });
@@ -126,6 +153,16 @@ describe("R1 최저임금", () => {
     const r = checkMinWage(contract({ ...period(null, null), ...wage(10_500) }), new Date(Date.UTC(2027, 1, 1)));
     expect(r.status).toBe("problem");
     expect(r.amount?.value).toBe(200);
+  });
+
+  it("시작일을 모르면 올해 기준으로 봤다고 결과마다 밝힌다", () => {
+    const note = "계약 시작일을 몰라서 올해(2026년) 기준으로 확인했어요. 시작일을 넣으면 그해 기준으로 다시 볼 수 있어요.";
+    const low = checkMinWage(contract({ ...period(null, null), ...wage(10_000) }), TODAY); // 약국 2번 사진
+    expect(low.status).toBe("problem");
+    expect(low.detail.startsWith(note)).toBe(true);
+    expect(checkMinWage(contract({ ...period(null, "2026-12-31"), ...wage(10_320) }), TODAY).detail.startsWith(note)).toBe(true); // 문제 없음
+    expect(checkMinWage(contract({ ...period(null, null), ...wage(10_320) }), TODAY).detail.startsWith(note)).toBe(true); // 2027년 인상 확인
+    expect(checkMinWage(contract(period("2026-11-01", null)), TODAY).detail).not.toContain("시작일을 몰라서");
   });
 
   it("2025년 계약은 2025년 최저시급과 비교한다", () => {

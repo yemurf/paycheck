@@ -6,8 +6,8 @@ import type { RuleId } from "./types";
 
 // 규칙 코드나 기준값(rules/ 아래 파일)을 바꾸면 날짜로 올린다. 같은 날 두 번 바꾸면 "2026-11-04.2"처럼.
 // 올리고 나면 RULES_FINGERPRINT도 테스트가 알려주는 값으로 바꾼다 (rules/rules.test.ts).
-export const RULES_VERSION = "2026-11-04";
-export const RULES_FINGERPRINT = "2026-11-04:517230e6705b064f";
+export const RULES_VERSION = "2026-11-04.4";
+export const RULES_FINGERPRINT = "2026-11-04.4:f2d3e476d4296739";
 
 export type Ruleset = {
   version: string; // RULES_VERSION

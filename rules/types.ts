@@ -12,6 +12,7 @@ export type RuleResult = {
   status: Status;
   summary: string; // 카드에 보이는 한 줄
   detail: string; // 펼쳤을 때 보이는 기본 설명 (AI 설명이 실패하면 이게 보인다)
+  premise?: string; // 결과를 읽을 때 꼭 알아야 하는 전제. detail 맨 앞에 있고, AI 설명에도 코드가 앞에 붙인다
   amount?: { label: string; value: number }; // 원 단위
   basis: string;
   missing?: string[]; // R5에서 빠진 항목

@@ -22,6 +22,7 @@ const SYSTEM_PROMPT = `너는 알바생에게 근로계약서 점검 결과를 �
 - 숫자는 입력에 있는 것만 그대로 쓴다. 새 숫자를 만들거나 계산하거나 단위를 바꾸지 않는다.
 - 판정(status)을 바꾸거나 더 세게 말하지 않는다. "불법이에요"처럼 단정하지 않는다.
 - 근거 조문 이름은 화면에 따로 보이니 다시 쓰지 않는다.
+- premise(전제)는 화면에서 설명 앞에 따로 붙으니 다시 쓰지 않는다.
 - 이 항목이 왜 중요한지, 이제 무엇을 하면 되는지를 담는다.`;
 
 // "10,320원", "90%", "0.9" 같은 숫자를 쉼표를 뺀 문자열로 모은다.
@@ -46,7 +47,9 @@ export async function addExplanations(results: RuleResult[]): Promise<RuleResult
     title: r.title,
     status: STATUS_LABEL[r.status],
     summary: r.summary,
-    detail: r.detail,
+    // 전제는 코드가 설명 앞에 붙이니, AI에게는 전제를 뺀 설명을 준다
+    detail: r.premise ? r.detail.replace(r.premise, "").trim() : r.detail,
+    ...(r.premise && { premise: r.premise }),
     ...(r.amount && { amount: r.amount }),
     ...(r.missing?.length && { missing: r.missing }),
   }));
@@ -64,8 +67,11 @@ export async function addExplanations(results: RuleResult[]): Promise<RuleResult
   );
 
   const byId = new Map(response.parsed_output?.items.map((i) => [i.id, i.explanation.trim()]) ?? []);
-  return results.map((r) => {
-    const explanation = byId.get(r.id);
-    return explanation && usesOnlyKnownNumbers(explanation, r) ? { ...r, explanation } : r;
-  });
+  return results.map((r) => attachExplanation(r, byId.get(r.id)));
+}
+
+// 숫자 검사를 통과한 설명만 붙이고, 전제(premise)는 AI가 빠뜨려도 보이게 코드가 앞에 붙인다.
+export function attachExplanation(r: RuleResult, explanation: string | undefined): RuleResult {
+  if (!explanation || !usesOnlyKnownNumbers(explanation, r)) return r;
+  return { ...r, explanation: r.premise ? `${r.premise} ${explanation}` : explanation };
 }
