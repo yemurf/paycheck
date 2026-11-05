@@ -32,3 +32,7 @@ These defaults are optimized for AI coding agents (and humans) working on apps t
   needed. Always curl https://ai-gateway.vercel.sh/v1/models first; never trust model IDs from memory
 - For durable agent loops or untrusted code: use Workflow (pause/resume/state) + Sandbox; use Vercel MCP for secure infra access
 <!-- VERCEL BEST PRACTICES END -->
+
+## 디자인
+
+화면(글자, 간격, 모서리, 색, 버튼)을 고칠 때는 `DESIGN.md`의 기준을 따른다. 기준을 바꾸면 `DESIGN.md`도 같이 고친다.
