@@ -4,8 +4,6 @@ import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import type { CheckResult, RuleResult, Status } from "@/rules";
 import { formatWon } from "@/rules/helpers";
-import { LEGAL_VERIFIED_ON } from "@/rules/legal-sources";
-import { LATEST_MIN_WAGE_YEAR } from "@/rules/standards";
 import { RULE_ICON } from "./rule-icons";
 import { CopyMessage, Disclaimer, ScreenHeader, SecondaryButton } from "./ui";
 
@@ -29,6 +27,12 @@ const STATUS_STYLE: Record<Status, { label: string; badge: string; card: string;
     count: "text-green-700",
   },
 };
+
+// "2026-11-03" → "2026년 11월 3일". 형식이 다르면 받은 그대로 보여준다
+function koreanDate(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  return m ? `${m[1]}년 ${Number(m[2])}월 ${Number(m[3])}일` : iso;
+}
 
 type Props = {
   result: CheckResult;
@@ -85,8 +89,19 @@ export function ResultScreen({ result, canAddPhoto, onAddPhoto, onEdit, onRestar
         <SecondaryButton onClick={onRestart}>다른 계약서 확인하기</SecondaryButton>
       </div>
 
-      {/* 기준이 바뀌면 rules/ 의 값을 따라 같이 바뀐다 */}
-      <Disclaimer note={`${LATEST_MIN_WAGE_YEAR}년 최저시급까지 반영 · 법령 ${LEGAL_VERIFIED_ON} 확인`} />
+      {/* 이 결과를 판정한 기준 (점검 응답의 ruleset, rules/version.ts). 줄은 · 에서만 바뀌게 항목마다 묶는다 */}
+      <Disclaimer
+        note={[
+          `${result.ruleset.minWageYears.to}년 최저시급까지 반영`,
+          `법령 ${koreanDate(result.ruleset.lawsCheckedOn)} 확인`,
+          `기준 ${result.ruleset.version}`,
+        ].map((part, i) => (
+          <span key={part}>
+            {i > 0 && " · "}
+            <span className="whitespace-nowrap">{part}</span>
+          </span>
+        ))}
+      />
     </div>
   );
 }

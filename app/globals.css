@@ -84,14 +84,15 @@
   스쿼클: 모서리가 원호보다 부드럽게 이어지는 둥근 사각형.
   - squircle-{xl,2xl,3xl,4xl,[값]}: 카드·버튼용. corner-shape를 아는 브라우저에서는 스쿼클로,
     모르는 브라우저(현재 Safari 등)에서는 같은 크기의 둥근 모서리로 보인다. 스쿼클은 같은 반지름이면
-    덜 둥글어 보여서 반지름을 1.8배로 키운다.
+    덜 둥글어 보여서 반지름을 1.3배로 키운다. (1.8배는 Chrome에서 Safari보다 훨씬 둥글어 보여 줄였다.
+    두 브라우저가 비슷하게 보이는 게 우선이고, 연속 곡률의 부드러움만 살짝 더한다.)
   - squircle-mask: 정사각형 이미지(앱 아이콘)용. 초타원(n=4) 모양 SVG로 잘라서 모든 브라우저에서 같다.
 */
 @utility squircle-* {
   border-radius: --value(--radius-*, [length]);
   @supports (corner-shape: squircle) {
     corner-shape: squircle;
-    border-radius: calc(--value(--radius-*, [length]) * 1.8);
+    border-radius: calc(--value(--radius-*, [length]) * 1.3);
   }
 }
 

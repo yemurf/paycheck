@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { AuthArea, LoginNotice } from "./AuthArea";
 import { PrimaryButton, SecondaryButton } from "./ui";
 
 const STEPS = [
@@ -75,7 +76,8 @@ export function StartScreen({ onStart, onSample, onNoContract, sampleLoading }: 
         </label>
       </div>
 
-      <div className="space-y-3 pt-6 pb-4">
+      <LoginNotice />
+      <div className="space-y-3 pt-6">
         <PrimaryButton arrow disabled={!agreed} onClick={onStart}>
           내 계약서 확인하기
         </PrimaryButton>
@@ -85,6 +87,11 @@ export function StartScreen({ onStart, onSample, onNoContract, sampleLoading }: 
         <button onClick={onNoContract} className="min-h-11 w-full text-body-sm text-zinc-500 underline underline-offset-2">
           계약서를 아직 못 받았어요
         </button>
+      </div>
+
+      {/* 로그인은 선택. 점검 버튼들보다 눈에 덜 띄게 구분선 아래에 작게 둔다 */}
+      <div className="mt-4 border-t border-zinc-100 pt-4 pb-4">
+        <AuthArea next="/check" variant="inline" />
       </div>
     </div>
   );

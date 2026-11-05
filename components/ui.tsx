@@ -140,7 +140,7 @@ export function WorkingScreen({
 }
 
 // F9: 모든 결과 화면 하단에 항상 노출. note: 점검 기준이 언제 것인지 같은 한 줄 (결과 화면만)
-export function Disclaimer({ note }: { note?: string }) {
+export function Disclaimer({ note }: { note?: ReactNode }) {
   return (
     <div className="mt-8 border-t border-zinc-200 pt-4 text-caption text-zinc-500">
       {note && <p className="mb-1">{note}</p>}

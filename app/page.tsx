@@ -1,6 +1,7 @@
 import { ArrowRight, BatteryFull, Check, ChevronDown, ChevronLeft, Lock, SignalHigh, Wifi } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { AuthArea, LoginNotice } from "@/components/AuthArea";
 import { RULE_ICON } from "@/components/rule-icons";
 import { formatWon } from "@/rules/helpers";
 import { LATEST_MIN_WAGE_YEAR, MIN_WAGE_BY_YEAR } from "@/rules/standards";
@@ -37,18 +38,17 @@ const STEPS = [
 export default function LandingPage() {
   return (
     <div className="overflow-x-hidden bg-white text-zinc-900">
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
-        <Link href="/" className="flex items-center gap-2">
+      <LoginNotice />
+      {/* 헤더 오른쪽은 로그인 영역(선택). 점검 시작은 히어로의 '내 계약서 확인하기'가 맡는다 */}
+      <header className="relative z-10 mx-auto flex max-w-5xl items-center justify-between gap-3 px-5 py-4">
+        <Link href="/" className="flex shrink-0 items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element -- 정적 아이콘 */}
           <img src="/icons/icon.svg" alt="" width={32} height={32} className="squircle-mask" />
           <span className="text-title3 text-blue-600">페이체크</span>
         </Link>
-        <Link
-          href="/check"
-          className="inline-flex min-h-11 items-center rounded-full bg-blue-600 px-4 text-body-sm font-semibold text-white transition active:scale-95"
-        >
-          시작하기
-        </Link>
+        <div className="min-w-0">
+          <AuthArea next="/" variant="header" />
+        </div>
       </header>
 
       {/* 첫 화면 */}
