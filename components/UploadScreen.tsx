@@ -1,11 +1,12 @@
 "use client";
 
-import { PenLine, Plus, X, ZoomIn } from "lucide-react";
+import { Check, PenLine, Plus, X, ZoomIn } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ApiError, extractContract } from "@/lib/api-client";
 import type { ContractExtraction } from "@/lib/contract-schema";
 import { loadPhoto, type Photo } from "@/lib/image";
 import { loadPdfPages, PdfError } from "@/lib/pdf";
+import { SAMPLES, type SampleId } from "@/lib/samples";
 import { ErrorBox, PrimaryButton, ScreenHeader, SecondaryButton, WorkingScreen } from "./ui";
 
 const MAX_PHOTOS = 2;
@@ -21,15 +22,17 @@ const EXTRACT_STEPS = [
 type Props = {
   photos: Photo[];
   isSample: boolean;
+  sampleId: SampleId; // 샘플 체험 중이면 지금 고른 샘플
+  onPickSample: (id: SampleId) => void;
   onPhotosChange: (photos: Photo[]) => void;
   onExtracted: (data: ContractExtraction) => void;
   onBack: () => void;
 };
 
-export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, onBack }: Props) {
+export function UploadScreen({ photos, isSample, sampleId, onPickSample, onPhotosChange, onExtracted, onBack }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [viewing, setViewing] = useState<Photo | null>(null);
+  const [viewing, setViewing] = useState<string | null>(null); // 크게 볼 사진 주소
   const [converting, setConverting] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
@@ -91,7 +94,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
 
   return (
     <div className="flex flex-1 flex-col">
-      {viewing && <PhotoViewer photo={viewing} onClose={() => setViewing(null)} />}
+      {viewing && <PhotoViewer src={viewing} onClose={() => setViewing(null)} />}
       {loading && <WorkingScreen title="계약서를 읽고 있어요" steps={EXTRACT_STEPS} expectedSeconds={18} />}
       <ScreenHeader title="계약서 사진 올리기" onBack={loading ? undefined : onBack} />
 
@@ -109,19 +112,74 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
 
       <div className="flex-1">
         {isSample ? (
-          <p className="squircle-2xl bg-blue-50 p-4 text-body text-blue-800">
-            가상의 카페 계약서예요. 아래 <strong>분석하기</strong>를 눌러 실제로 점검되는 과정을 체험해 보세요.
+          <p id="sample-pick-title" className="text-body text-zinc-700">
+            체험할 샘플 계약서를 골라 주세요. 아래 <strong>분석하기</strong>를 누르면 실제로 점검되는 과정을 볼 수 있어요.
           </p>
         ) : (
           <MaskGuide />
         )}
 
-        {photos.length > 0 && (
+        {isSample && (
+          // 사진을 누르면 고르고(오른쪽 위 체크), 아래 '크게 보기'를 누르면 확대한다
+          <ul role="radiogroup" aria-labelledby="sample-pick-title" className="mt-6 grid grid-cols-2 gap-3">
+            {SAMPLES.map((s) => {
+              const selected = s.id === sampleId;
+              return (
+                <li key={s.id} className="animate-screen-in">
+                  {/* 사진과 그 위에 겹치는 것(체크, 장 수, 크게 보기)만 묶는다. 이름은 아래에 따로 */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={selected}
+                      aria-label={`${s.name} 계약서 고르기`}
+                      onClick={() => !selected && onPickSample(s.id)}
+                      className={`relative block w-full overflow-hidden squircle-xl transition active:scale-[0.98] ${
+                        selected ? "ring-2 ring-blue-600" : "border border-zinc-200"
+                      }`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element -- 정적 샘플 이미지 */}
+                      <img src={s.pages[0]} alt="" className="aspect-[3/4] w-full object-cover object-top" />
+                    </button>
+                    {/* 고른 표시. 고르지 않은 것은 빈 원으로 고를 수 있다는 것만 보여준다 */}
+                    <span
+                      aria-hidden
+                      className={`pointer-events-none absolute top-2 right-2 flex size-7 items-center justify-center rounded-full ${
+                        selected ? "bg-blue-600 text-white" : "bg-white/80 ring-2 ring-zinc-300"
+                      }`}
+                    >
+                      {selected && <Check className="size-4" strokeWidth={3} />}
+                    </span>
+                    {s.pages.length > 1 && (
+                      <span className="pointer-events-none absolute top-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-caption font-semibold text-white">
+                        {s.pages.length}장
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setViewing(s.pages[0])}
+                      aria-label={`${s.name} 계약서 크게 보기`}
+                      className="absolute inset-x-0 bottom-0 flex min-h-11 items-end justify-center gap-1 rounded-b-xl bg-gradient-to-t from-black/60 to-transparent pb-2 text-caption font-semibold text-white"
+                    >
+                      <ZoomIn aria-hidden className="size-3.5" />
+                      크게 보기
+                    </button>
+                  </div>
+                  <p className={`mt-1.5 min-h-[1lh] text-center text-body-sm ${selected ? "font-semibold text-blue-700" : "text-zinc-600"}`}>
+                    {s.name}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {!isSample && photos.length > 0 && (
           <ul className="mt-6 grid grid-cols-2 gap-3">
             {photos.map((p, i) => (
               <li key={p.id} className="relative animate-screen-in">
                 <button
-                  onClick={() => setViewing(p)}
+                  onClick={() => setViewing(p.src)}
                   aria-label={`계약서 ${i + 1}장 크게 보기`}
                   className="relative block w-full overflow-hidden squircle-xl border border-zinc-200 transition active:scale-[0.98]"
                 >
@@ -205,7 +263,7 @@ export function UploadScreen({ photos, isSample, onPhotosChange, onExtracted, on
 }
 
 // 사진을 전체 화면으로 본다. 확대하면 가로로 넓어지고, 손가락으로 밀어서 구석까지 볼 수 있다.
-function PhotoViewer({ photo, onClose }: { photo: Photo; onClose: () => void }) {
+function PhotoViewer({ src, onClose }: { src: string; onClose: () => void }) {
   const [zoomed, setZoomed] = useState(false);
 
   useEffect(() => {
@@ -245,7 +303,7 @@ function PhotoViewer({ photo, onClose }: { photo: Photo; onClose: () => void }) 
       <div className="flex-1 overflow-auto overscroll-contain" onDoubleClick={() => setZoomed(!zoomed)}>
         {/* eslint-disable-next-line @next/next/no-img-element -- 로컬 object URL */}
         <img
-          src={photo.src}
+          src={src}
           alt="계약서 크게 보기"
           className={zoomed ? "w-[220%] max-w-none" : "mx-auto h-full w-full object-contain"}
         />

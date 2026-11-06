@@ -43,9 +43,18 @@ type Props = {
   onAddPhoto: () => void;
   onEdit: () => void;
   onRestart: () => void;
+  restartLabel?: string; // 샘플 체험이면 "내 계약서로 확인하기"
 };
 
-export function ResultScreen({ result, saveInput, canAddPhoto, onAddPhoto, onEdit, onRestart }: Props) {
+export function ResultScreen({
+  result,
+  saveInput,
+  canAddPhoto,
+  onAddPhoto,
+  onEdit,
+  onRestart,
+  restartLabel = "다른 계약서 확인하기",
+}: Props) {
   const count = (s: Status) => result.results.filter((r) => r.status === s).length;
   const problems = count("problem");
   const checks = count("check");
@@ -95,7 +104,7 @@ export function ResultScreen({ result, saveInput, canAddPhoto, onAddPhoto, onEdi
       <div className="mt-8 space-y-3">
         {/* 이 화면의 주된 행동은 카드 안의 '문장 복사하기'라서, 아래 두 버튼은 같은 무게로 둔다 */}
         <SecondaryButton onClick={onEdit}>입력한 내용 고치기</SecondaryButton>
-        <SecondaryButton onClick={onRestart}>다른 계약서 확인하기</SecondaryButton>
+        <SecondaryButton onClick={onRestart}>{restartLabel}</SecondaryButton>
       </div>
 
       {/* 이 결과를 판정한 기준 (점검 응답의 ruleset, rules/version.ts). 줄은 · 에서만 바뀌게 항목마다 묶는다.

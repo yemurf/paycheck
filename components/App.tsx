@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { ContractExtraction } from "@/lib/contract-schema";
-import { loadSamplePhoto, type Photo } from "@/lib/image";
+import { loadSamplePhotos, type Photo } from "@/lib/image";
+import { FIRST_SAMPLE, type SampleId } from "@/lib/samples";
 import type { CheckResult } from "@/rules";
 import { ConfirmScreen, type ConfirmState } from "./ConfirmScreen";
 import { NoContractScreen } from "./NoContractScreen";
@@ -17,11 +19,13 @@ type Step = "sample-loading" | "start" | "no-contract" | "upload" | "confirm" | 
 // 모든 상태는 이 컴포넌트 메모리에만 둔다. 저장하지 않고, 에러가 나도 입력값과 사진은 남는다 (PRD 7장).
 export function App({ startWithSample = false }: { startWithSample?: boolean }) {
   const [step, setStep] = useState<Step>(startWithSample ? "sample-loading" : "start");
+  const router = useRouter();
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
   const [result, setResult] = useState<CheckResult | null>(null);
   const [checkedInput, setCheckedInput] = useState<SaveInput | null>(null); // 이 결과를 낸 입력값 (저장용)
   const [isSample, setIsSample] = useState(false);
+  const [sampleId, setSampleId] = useState<SampleId>(FIRST_SAMPLE); // 샘플 체험 중이면 지금 고른 샘플
   const [sampleLoading, setSampleLoading] = useState(false);
 
   function go(next: Step) {
@@ -34,7 +38,8 @@ export function App({ startWithSample = false }: { startWithSample?: boolean }) 
     "sample-loading": null,
     start: null,
     "no-contract": "start",
-    upload: result ? "result" : "start",
+    // 랜딩의 샘플 체험(/check/sample)으로 들어와 아직 결과를 안 봤으면 첫 화면(동의·로그인)을 거치지 않고 앱을 떠난다
+    upload: result ? "result" : startWithSample && isSample ? null : "start",
     confirm: "upload",
     result: "confirm",
   };
@@ -77,7 +82,8 @@ export function App({ startWithSample = false }: { startWithSample?: boolean }) 
   function onExtracted(contract: ContractExtraction) {
     // 분석 중에 뒤로가기로 업로드 화면을 떠났으면 결과로 끌고 가지 않는다
     if (stepRef.current !== "upload") return;
-    setConfirm({ contract, weeklyHours: "", wageConfirmed: false, minor: null });
+    // 샘플 계약서의 근로자는 사용자 본인이 아니니 나이는 18세 이상으로 미리 골라 둔다 (바꿔 볼 수는 있다)
+    setConfirm({ contract, weeklyHours: "", wageConfirmed: false, minor: isSample ? false : null });
     go("confirm");
   }
 
@@ -90,7 +96,18 @@ export function App({ startWithSample = false }: { startWithSample?: boolean }) 
     setCheckedInput(null);
   }
 
+  // 다른 계약서 확인하기. 샘플 체험 뒤라면 내 계약서는 해외 전송 동의부터 받아야 하니 첫 화면으로 보낸다
   function restart() {
+    if (isSample) {
+      // 샘플 체험 주소에서 왔으면 /check로 옮겨 간다 (새로고침해도 샘플이 다시 뜨지 않게)
+      if (startWithSample) {
+        router.push("/check");
+        return;
+      }
+      reset([], false);
+      go("start");
+      return;
+    }
     reset([], false);
     go("upload");
   }
@@ -101,10 +118,11 @@ export function App({ startWithSample = false }: { startWithSample?: boolean }) 
   }
 
   // 심사위원처럼 계약서가 없는 사람도 끝까지 써볼 수 있게, 가상의 계약서를 올린 상태로 시작한다
-  async function startSample() {
+  async function startSample(id: SampleId = FIRST_SAMPLE) {
     setSampleLoading(true);
     try {
-      reset([await loadSamplePhoto()], true);
+      reset(await loadSamplePhotos(id), true);
+      setSampleId(id);
       go("upload");
     } catch (e) {
       console.error("sample load failed", e);
@@ -121,7 +139,7 @@ export function App({ startWithSample = false }: { startWithSample?: boolean }) 
         {step === "start" && (
           <StartScreen
             onStart={startOwn}
-            onSample={startSample}
+            onSample={() => startSample()}
             onNoContract={() => go("no-contract")}
             sampleLoading={sampleLoading}
           />
@@ -131,9 +149,15 @@ export function App({ startWithSample = false }: { startWithSample?: boolean }) 
           <UploadScreen
             photos={photos}
             isSample={isSample}
+            sampleId={sampleId}
+            onPickSample={startSample}
             onPhotosChange={setPhotos}
             onExtracted={onExtracted}
-            onBack={() => go(result ? "result" : "start")}
+            onBack={() => {
+              const target = backTarget.upload;
+              if (target) go(target);
+              else router.push("/");
+            }}
           />
         )}
         {step === "confirm" && confirm && (
@@ -156,6 +180,7 @@ export function App({ startWithSample = false }: { startWithSample?: boolean }) 
             onAddPhoto={() => go("upload")}
             onEdit={() => go("confirm")}
             onRestart={restart}
+            restartLabel={isSample ? "내 계약서로 확인하기" : "다른 계약서 확인하기"}
           />
         )}
       </div>

@@ -1,6 +1,7 @@
 // 브라우저 전용. 사진을 업로드 전에 축소한다.
 // 민감정보는 사용자가 사진 앱에서 직접 가린 뒤 올린다. 앱은 가리기 전 원본을 다루지 않는다.
 // PDF도 앱에서 가리지 않고, 가려진 PDF만 올리라고 안내한다 (UploadScreen).
+import { SAMPLES, type SampleId } from "./samples";
 
 export const MAX_SIDE = 1600; // PRD 8장: 업로드 전 긴 변 1,600px
 
@@ -48,9 +49,14 @@ export async function loadPhoto(file: Blob): Promise<Photo> {
   return photoFromCanvas(canvas);
 }
 
-// 체험용 샘플 계약서 (가상의 인물·사업장, public/samples)
-export async function loadSamplePhoto(): Promise<Photo> {
-  const res = await fetch("/samples/sample-contract.png");
-  if (!res.ok) throw new Error("sample not found");
-  return loadPhoto(await res.blob());
+// 체험용 샘플 계약서 (lib/samples.ts). 장마다 사진과 같은 방식으로 줄여서 돌려준다
+export async function loadSamplePhotos(id: SampleId): Promise<Photo[]> {
+  const sample = SAMPLES.find((s) => s.id === id) ?? SAMPLES[0];
+  return Promise.all(
+    sample.pages.map(async (src) => {
+      const res = await fetch(src);
+      if (!res.ok) throw new Error(`sample not found: ${src}`);
+      return loadPhoto(await res.blob());
+    }),
+  );
 }
