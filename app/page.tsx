@@ -79,7 +79,6 @@ export default function LandingPage() {
               <CtaPrimary href="/check">내 계약서 확인하기</CtaPrimary>
               <CtaSecondary href="/check/sample">회원가입 없이 샘플로 체험하기</CtaSecondary>
             </div>
-            <p className="mt-4 text-body-sm text-zinc-500">사진은 저장하지 않아요 · 무료</p>
           </div>
 
           <PhoneMock />
