@@ -82,7 +82,7 @@ export function StartScreen({ onStart, onSample, onNoContract, sampleLoading }: 
           내 계약서 확인하기
         </PrimaryButton>
         <SecondaryButton disabled={sampleLoading} onClick={onSample}>
-          {sampleLoading ? "샘플을 불러오고 있어요…" : "샘플 계약서로 체험해 보기"}
+          {sampleLoading ? "샘플을 불러오고 있어요…" : "회원가입 없이 샘플로 체험해 보기"}
         </SecondaryButton>
         <button onClick={onNoContract} className="min-h-11 w-full text-body-sm text-zinc-500 underline underline-offset-2">
           계약서를 아직 못 받았어요

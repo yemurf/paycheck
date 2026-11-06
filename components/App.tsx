@@ -58,7 +58,7 @@ export function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  // 랜딩 페이지의 "샘플로 체험하기"(/check?sample=1)로 들어오면 샘플을 올린 채 시작한다
+  // 랜딩 페이지의 "회원가입 없이 샘플로 체험하기"(/check?sample=1)로 들어오면 샘플을 올린 채 시작한다
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("sample") === "1") {
       history.replaceState(history.state, "", "/check");

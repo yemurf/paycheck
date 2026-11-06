@@ -70,7 +70,7 @@ export default function LandingPage() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <CtaPrimary href="/check">내 계약서 확인하기</CtaPrimary>
-              <CtaSecondary href="/check?sample=1">샘플 계약서로 체험하기</CtaSecondary>
+              <CtaSecondary href="/check?sample=1">회원가입 없이 샘플로 체험하기</CtaSecondary>
             </div>
             <p className="mt-4 text-body-sm text-zinc-500">회원가입 없음 · 사진 저장 안 함 · 무료</p>
           </div>
@@ -206,7 +206,7 @@ export default function LandingPage() {
               href="/check?sample=1"
               className="group flex flex-1 items-center justify-center gap-1 squircle-2xl bg-blue-500 px-5 py-4 text-headline text-white ring-1 ring-white/30 transition duration-200 ease-out hover:-translate-y-1 hover:bg-blue-400 hover:ring-white/70 hover:shadow-xl hover:shadow-blue-900/30 focus-visible:-translate-y-1 active:translate-y-0 active:scale-[0.98]"
             >
-              샘플로 체험하기
+              회원가입 없이 샘플로 체험하기
               <ArrowRight
                 aria-hidden
                 className="size-5 transition-transform duration-200 ease-out group-hover:translate-x-1 group-focus-visible:translate-x-1"
