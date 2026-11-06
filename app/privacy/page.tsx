@@ -16,7 +16,7 @@ export default function PrivacyPage() {
         페이체크로 돌아가기
       </Link>
       <h1 className="mt-2 text-title2 text-zinc-900">개인정보 처리 안내</h1>
-      <p className="mt-2 text-body-sm text-zinc-500">페이체크는 회원가입 없이 쓰고, 아무것도 저장하지 않아요.</p>
+      <p className="mt-2 text-body-sm text-zinc-500">페이체크는 회원가입 없이 쓸 수 있고, 로그인하지 않으면 아무것도 저장하지 않아요.</p>
 
       <Section title="무엇을 받나요">
         <ul className="list-disc space-y-1 pl-5">
@@ -26,11 +26,15 @@ export default function PrivacyPage() {
             보내니, 주민등록번호·계좌번호가 가려진 PDF만 올려 주세요)
           </li>
           <li>확인 화면에서 직접 고치거나 입력한 값</li>
+          <li>카카오로 로그인한 경우: 카카오 회원번호와 닉네임 (이메일, 전화번호는 받지 않아요)</li>
         </ul>
       </Section>
 
       <Section title="어디에 쓰나요">
-        <p>계약서 내용을 읽고 점검 결과와 설명을 보여주는 데에만 써요.</p>
+        <p>
+          계약서 내용을 읽고 점검 결과와 설명을 보여주는 데에만 써요. 로그인해서 결과를 저장했다면, 저장한 계약 내용을
+          급여명세서 대조처럼 내 점검에 다시 써요.
+        </p>
       </Section>
 
       <Section title="어디로 보내나요">
@@ -39,11 +43,17 @@ export default function PrivacyPage() {
           Claude AI를 제공하는 회사(Anthropic 또는 Claude를 운영하는 클라우드 회사)에 전달해요. 사진에 주민등록번호,
           계좌번호처럼 민감한 정보가 있다면 올리기 전에 꼭 가려 주세요. 페이체크는 사진을 따로 가려 주지 않아요.
         </p>
+        <p className="mt-2">로그인해서 저장한 결과는 데이터베이스 서비스 <strong>Supabase</strong>에 보관돼요.</p>
       </Section>
 
       <Section title="얼마나 보관하나요">
         <ul className="list-disc space-y-1 pl-5">
-          <li>페이체크는 사진, 입력값, 결과를 저장하지 않아요. 화면을 닫거나 새로고침하면 사라져요.</li>
+          <li>로그인하지 않으면 사진, 입력값, 결과를 저장하지 않아요. 화면을 닫거나 새로고침하면 사라져요.</li>
+          <li>
+            로그인하고 저장한 경우, 확인한 계약 내용(시급, 근무 요일과 시간, 계약기간 등)과 점검 결과를 보관해요. 사진과
+            계약서 원문 문장은 저장하지 않아요. 저장한 결과는 언제든 직접 지울 수 있어요.
+          </li>
+          <li>로그인 상태를 기억하려고 30일 동안 브라우저 쿠키를 써요.</li>
           <li>너무 많은 요청을 막기 위해 접속 IP를 1분 동안 서버 메모리에서만 써요.</li>
           <li>
             AI 서비스와 서버 호스팅(Vercel)은 각 회사의 정책에 따라 처리 기록을 일정 기간 보관할 수 있어요.
