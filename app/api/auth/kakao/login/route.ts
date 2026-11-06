@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { authorizeUrl, encodeState, KakaoError, safeNextPath, STATE_COOKIE, stateCookieOptions } from "@/lib/kakao";
 
-// GET /api/auth/kakao/login?next=/check
+// GET /api/auth/kakao/login?next=/my
 // 카카오 로그인 화면으로 보낸다. 로그인을 마치면 /api/auth/kakao/callback으로 돌아오고, 그다음 next로 간다.
 export async function GET(request: NextRequest) {
   const state = randomBytes(16).toString("hex");

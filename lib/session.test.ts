@@ -33,15 +33,16 @@ describe("로그인 토큰", () => {
 describe("로그인 뒤 돌아갈 경로", () => {
   it("우리 사이트 안의 경로만 받는다", () => {
     expect(safeNextPath("/check")).toBe("/check");
+    expect(safeNextPath("/my")).toBe("/my");
     expect(safeNextPath("/legal#R1")).toBe("/legal#R1");
     for (const bad of [null, "", "https://evil.com", "//evil.com", "/\\evil.com", "evil"]) {
-      expect(safeNextPath(bad)).toBe("/check");
+      expect(safeNextPath(bad)).toBe("/");
     }
   });
 
   it("state 쿠키는 저장한 값을 돌려주고, 망가진 값은 무시한다", () => {
     expect(decodeState(encodeState({ state: "abc", next: "/legal" }))).toEqual({ state: "abc", next: "/legal" });
-    expect(decodeState(encodeState({ state: "abc", next: "https://evil.com" }))?.next).toBe("/check");
+    expect(decodeState(encodeState({ state: "abc", next: "https://evil.com" }))?.next).toBe("/");
     expect(decodeState("not-base64-json")).toBeNull();
     expect(decodeState(undefined)).toBeNull();
   });

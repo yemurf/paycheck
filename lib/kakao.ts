@@ -70,8 +70,9 @@ export async function fetchKakaoUser(origin: string, code: string): Promise<Sess
 }
 
 // 로그인 뒤 돌아갈 곳. 다른 사이트로 보내는 데 악용되지 않게 우리 사이트 안의 경로만 받는다.
+// 없거나 이상하면 랜딩으로 (로그인 실패 안내가 있는 곳)
 export function safeNextPath(value: string | null | undefined): string {
-  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return "/check";
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return "/";
   return value;
 }
 

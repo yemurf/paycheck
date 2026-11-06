@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   const origin = request.nextUrl.origin;
   const params = request.nextUrl.searchParams;
   const saved = decodeState(request.cookies.get(STATE_COOKIE)?.value);
-  const next = saved?.next ?? "/check";
+  const next = saved?.next ?? "/";
 
   const done = (result?: "failed" | "cancelled") => {
     const url = new URL(next, origin);
