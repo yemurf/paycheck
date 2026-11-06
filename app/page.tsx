@@ -211,13 +211,10 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/check/sample"
-              className="group flex flex-1 items-center justify-center gap-1 squircle-2xl bg-blue-500 px-5 py-4 text-headline text-white ring-1 ring-white/30 transition duration-200 ease-out hover:-translate-y-1 hover:bg-blue-400 hover:ring-white/70 hover:shadow-xl hover:shadow-blue-900/30 focus-visible:-translate-y-1 active:translate-y-0 active:scale-[0.98]"
+              className="flex flex-1 items-center justify-center squircle-2xl bg-blue-500 px-5 py-4 text-headline text-white ring-1 ring-white/30 transition duration-200 ease-out hover:-translate-y-1 hover:bg-blue-400 hover:ring-white/70 hover:shadow-xl hover:shadow-blue-900/30 focus-visible:-translate-y-1 active:translate-y-0 active:scale-[0.98]"
             >
+              {/* 샘플 체험은 다음 단계가 아니라 화살표를 붙이지 않는다 */}
               회원가입 없이 샘플로 체험하기
-              <ArrowRight
-                aria-hidden
-                className="size-5 transition-transform duration-200 ease-out group-hover:translate-x-1 group-focus-visible:translate-x-1"
-              />
             </Link>
           </div>
         </div>
@@ -248,13 +245,19 @@ export default function LandingPage() {
   );
 }
 
+// 히어로 버튼. 마우스를 올리거나 키보드로 고르면 아래 CTA처럼 살짝 떠오른다(터치 기기에서는 hover가 없다).
+// 화살표는 다음 단계로 넘어가는 주 버튼에만 붙인다 (DESIGN.md 5장).
 function CtaPrimary({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link
       href={href}
-      className="squircle-2xl bg-blue-600 px-6 py-4 text-center text-headline text-white shadow-lg shadow-blue-600/25 transition active:scale-[0.98] active:bg-blue-700"
+      className="group flex items-center justify-center gap-1 squircle-2xl bg-blue-600 px-6 py-4 text-center text-headline text-white shadow-lg shadow-blue-600/25 transition duration-200 ease-out hover:-translate-y-1 hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/30 focus-visible:-translate-y-1 active:translate-y-0 active:scale-[0.98] active:bg-blue-700"
     >
       {children}
+      <ArrowRight
+        aria-hidden
+        className="size-5 transition-transform duration-200 ease-out group-hover:translate-x-1 group-focus-visible:translate-x-1"
+      />
     </Link>
   );
 }
@@ -263,7 +266,7 @@ function CtaSecondary({ href, children }: { href: string; children: ReactNode })
   return (
     <Link
       href={href}
-      className="squircle-2xl bg-white px-6 py-4 text-center text-headline text-zinc-800 ring-1 ring-zinc-200 transition active:scale-[0.98] active:bg-zinc-50"
+      className="squircle-2xl bg-white px-6 py-4 text-center text-headline text-zinc-800 ring-1 ring-zinc-200 transition duration-200 ease-out hover:-translate-y-1 hover:shadow-lg hover:shadow-zinc-900/10 hover:ring-zinc-300 focus-visible:-translate-y-1 active:translate-y-0 active:scale-[0.98] active:bg-zinc-50"
     >
       {children}
     </Link>
