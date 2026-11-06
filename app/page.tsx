@@ -201,7 +201,8 @@ export default function LandingPage() {
             {/* 마우스를 올리거나 키보드로 고르면 살짝 떠오르고 화살표가 앞으로 나간다 */}
             <Link
               href="/check"
-              className="group flex flex-1 items-center justify-center gap-1 squircle-2xl bg-white px-5 py-4 text-headline text-blue-700 transition duration-200 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-900/30 focus-visible:-translate-y-1 active:translate-y-0 active:scale-[0.98]"
+              data-press
+              className="group flex flex-1 items-center justify-center gap-1 squircle-2xl bg-white [--press-color:rgb(36_87_197/0.16)] px-5 py-4 text-headline text-blue-700 transition duration-200 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-900/30 focus-visible:-translate-y-1 active:translate-y-0 active:scale-[0.98]"
             >
               내 계약서 확인하기
               <ArrowRight
@@ -211,6 +212,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/check/sample"
+              data-press
               className="flex flex-1 items-center justify-center squircle-2xl bg-blue-500 px-5 py-4 text-headline text-white ring-1 ring-white/30 transition duration-200 ease-out hover:-translate-y-1 hover:bg-blue-400 hover:ring-white/70 hover:shadow-xl hover:shadow-blue-900/30 focus-visible:-translate-y-1 active:translate-y-0 active:scale-[0.98]"
             >
               {/* 샘플 체험은 다음 단계가 아니라 화살표를 붙이지 않는다 */}
@@ -250,6 +252,7 @@ export default function LandingPage() {
 function CtaPrimary({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link
+      data-press
       href={href}
       className="group flex items-center justify-center gap-1 squircle-2xl bg-blue-600 px-6 py-4 text-center text-headline text-white shadow-lg shadow-blue-600/25 transition duration-200 ease-out hover:-translate-y-1 hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/30 focus-visible:-translate-y-1 active:translate-y-0 active:scale-[0.98] active:bg-blue-700"
     >
@@ -265,8 +268,9 @@ function CtaPrimary({ href, children }: { href: string; children: ReactNode }) {
 function CtaSecondary({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link
+      data-press
       href={href}
-      className="squircle-2xl bg-white px-6 py-4 text-center text-headline text-zinc-800 ring-1 ring-zinc-200 transition duration-200 ease-out hover:-translate-y-1 hover:shadow-lg hover:shadow-zinc-900/10 hover:ring-zinc-300 focus-visible:-translate-y-1 active:translate-y-0 active:scale-[0.98] active:bg-zinc-50"
+      className="squircle-2xl bg-white [--press-color:rgb(36_87_197/0.16)] px-6 py-4 text-center text-headline text-zinc-800 ring-1 ring-zinc-200 transition duration-200 ease-out hover:-translate-y-1 hover:shadow-lg hover:shadow-zinc-900/10 hover:ring-zinc-300 focus-visible:-translate-y-1 active:translate-y-0 active:scale-[0.98] active:bg-zinc-50"
     >
       {children}
     </Link>

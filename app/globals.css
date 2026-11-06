@@ -78,6 +78,7 @@
   --animate-screen-in: screen-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
   --animate-float: float 2.4s ease-in-out infinite;
   --animate-scan: scan 1.8s ease-in-out infinite;
+  --animate-pop: pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /*
@@ -111,6 +112,54 @@
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* 체크 표시가 작게 시작해 살짝 커졌다가 제자리로 ("복사했어요", "저장했어요") */
+@keyframes pop {
+  0% {
+    opacity: 0;
+    scale: 0.4;
+  }
+  60% {
+    opacity: 1;
+    scale: 1.15;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+/*
+  누름 빛: 버튼을 누르면 손가락이 닿은 자리(--press-x, --press-y)에서 빛이 동그랗게 퍼졌다 0.45초 안에 사라진다.
+  모바일에는 hover가 없어서, 누르는 순간의 반응을 조금 더 보이게 한다. components/PressGlow.tsx가 data-pressed를 켠다.
+  빛 색은 --press-color로 바꾼다: 파란 버튼은 흰 빛(기본), 흰 버튼과 연한 파랑 버튼은 파란 빛.
+*/
+[data-press] {
+  position: relative;
+  overflow: hidden;
+}
+[data-press][data-pressed]::after {
+  content: "";
+  position: absolute;
+  left: var(--press-x, 50%);
+  top: var(--press-y, 50%);
+  width: 240%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, var(--press-color, rgb(255 255 255 / 0.4)) 0%, transparent 60%);
+  pointer-events: none;
+  animation: press-glow 0.45s ease-out forwards;
+}
+@keyframes press-glow {
+  0% {
+    opacity: 1;
+    scale: 0.15;
+  }
+  100% {
+    opacity: 0;
+    scale: 1;
   }
 }
 

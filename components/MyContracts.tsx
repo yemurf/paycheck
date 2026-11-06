@@ -86,7 +86,7 @@ export function MyContracts() {
               >
                 {saveNote.ok && (
                   <span className="flex h-[1lh] shrink-0 items-center">
-                    <Check aria-hidden className="size-5" />
+                    <Check aria-hidden className="size-5 animate-pop" />
                   </span>
                 )}
                 {saveNote.text}
@@ -136,6 +136,7 @@ function Empty({ text, tone = "muted" }: { text: string; tone?: "muted" | "error
         {text}
       </p>
       <Link
+        data-press
         href="/check"
         className="mt-6 inline-flex min-h-14 items-center justify-center squircle-2xl bg-blue-600 px-6 text-headline text-white shadow-sm shadow-blue-600/20 transition active:scale-[0.98] active:bg-blue-700"
       >

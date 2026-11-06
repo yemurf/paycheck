@@ -51,7 +51,7 @@ export function SaveCard({ input }: { input: SaveInput }) {
         ) : state.status === "saved" ? (
           <div className="flex min-h-11 items-center justify-between gap-2">
             <p role="status" className="flex items-center gap-2 text-body font-semibold text-zinc-900">
-              <Check aria-hidden className="size-5 text-green-700" />
+              <Check aria-hidden className="size-5 animate-pop text-green-700" />
               저장했어요
             </p>
             <Link

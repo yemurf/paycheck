@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ChevronLeft } from "lucide-react";
+import { ArrowRight, Check, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 
@@ -23,6 +23,7 @@ export function PrimaryButton({
 }: ButtonProps & { arrow?: boolean }) {
   return (
     <button
+      data-press
       className={`group flex w-full items-center justify-center gap-1 bg-blue-600 text-center text-white shadow-sm shadow-blue-600/20 transition duration-200 ease-out active:scale-[0.98] active:bg-blue-700 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:shadow-none disabled:active:scale-100 ${BUTTON_SIZE[size]} ${
         arrow ? "enabled:hover:-translate-y-0.5 enabled:hover:bg-blue-700 enabled:hover:shadow-lg enabled:hover:shadow-blue-600/30" : ""
       } ${className}`}
@@ -42,7 +43,8 @@ export function PrimaryButton({
 export function SecondaryButton({ className = "", size = "md", ...props }: ButtonProps) {
   return (
     <button
-      className={`flex w-full items-center justify-center border border-zinc-200 bg-white text-center text-zinc-800 transition active:scale-[0.98] active:bg-zinc-50 disabled:text-zinc-400 disabled:active:scale-100 ${BUTTON_SIZE[size]} ${className}`}
+      data-press
+      className={`flex w-full items-center justify-center border border-zinc-200 bg-white [--press-color:rgb(36_87_197/0.16)] text-center text-zinc-800 transition active:scale-[0.98] active:bg-zinc-50 disabled:text-zinc-400 disabled:active:scale-100 ${BUTTON_SIZE[size]} ${className}`}
       {...props}
     />
   );
@@ -71,7 +73,15 @@ export function CopyMessage({ message, compact = false }: { message: string; com
     }
   }
 
-  const label = copied ? "복사했어요" : "문장 복사하기";
+  // 복사하면 체크 표시가 톡 튀어나온다
+  const label = copied ? (
+    <>
+      <Check aria-hidden className="size-4 animate-pop" strokeWidth={2.5} />
+      복사했어요
+    </>
+  ) : (
+    "문장 복사하기"
+  );
   return (
     <div>
       <blockquote className={`squircle-xl bg-zinc-100 text-body text-zinc-800 ${compact ? "p-3" : "p-4"}`}>
@@ -79,8 +89,9 @@ export function CopyMessage({ message, compact = false }: { message: string; com
       </blockquote>
       {compact ? (
         <button
+          data-press
           onClick={copy}
-          className="mt-2 flex min-h-11 w-full items-center justify-center squircle-xl bg-blue-50 px-4 py-2 text-body-sm font-semibold text-blue-700 transition active:scale-[0.98] active:bg-blue-100"
+          className="mt-2 flex min-h-11 w-full items-center justify-center gap-1 squircle-xl bg-blue-50 [--press-color:rgb(36_87_197/0.16)] px-4 py-2 text-body-sm font-semibold text-blue-700 transition active:scale-[0.98] active:bg-blue-100"
         >
           {label}
         </button>

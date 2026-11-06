@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { CheckResult, RuleResult, Status } from "@/rules";
 import { formatWon } from "@/rules/helpers";
 import { RULE_ICON } from "./rule-icons";
+import { CountUp } from "./CountUp";
 import { SaveCard } from "./SaveCard";
 import type { SaveInput } from "./saved-results-api";
 import { CopyMessage, Disclaimer, ScreenHeader, SecondaryButton } from "./ui";
@@ -77,10 +78,13 @@ export function ResultScreen({
         <p className="text-body-sm text-zinc-500">항목 {result.results.length}개를 점검했어요</p>
         <p className="mt-1 text-title2">{headline}</p>
         <dl className="mt-4 grid grid-cols-3 divide-x divide-zinc-200 border-t border-zinc-200 pt-4">
-          {(["problem", "check", "ok"] as const).map((s) => (
+          {(["problem", "check", "ok"] as const).map((s, i) => (
             <div key={s} className="flex flex-col-reverse items-center">
               <dt className="mt-1 text-caption text-zinc-500">{STATUS_STYLE[s].label}</dt>
-              <dd className={`text-title1 tabular-nums ${count(s) > 0 ? STATUS_STYLE[s].count : "text-zinc-500"}`}>{count(s)}</dd>
+              <dd className={`text-title1 tabular-nums ${count(s) > 0 ? STATUS_STYLE[s].count : "text-zinc-500"}`}>
+                {/* 0부터 세어 올라가며 나타난다. 칸마다 조금씩 늦게 시작한다 */}
+                <CountUp value={count(s)} delay={i * 120} />
+              </dd>
             </div>
           ))}
         </dl>
