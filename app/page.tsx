@@ -1,12 +1,12 @@
 import { ArrowRight, BatteryFull, Check, ChevronDown, ChevronLeft, Lock, SignalHigh, Wifi } from "lucide-react";
+import { cacheLife } from "next/cache";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { AuthArea, LoginNotice } from "@/components/AuthArea";
 import { RULE_ICON } from "@/components/rule-icons";
-import { formatWon } from "@/rules/helpers";
-import { LATEST_MIN_WAGE_YEAR, MIN_WAGE_BY_YEAR } from "@/rules/standards";
+import { minWageNotice } from "@/lib/min-wage-notice";
 
-// 랜딩 페이지. 앱은 /check, 샘플 체험은 /check?sample=1
+// 랜딩 페이지. 앱은 /check, 샘플 체험은 /check/sample
 // 숫자와 법 기준은 rules/standards.ts와 같아야 한다 (지어낸 통계는 쓰지 않는다).
 
 const CHECKS = [
@@ -34,6 +34,13 @@ const STEPS = [
   { title: "읽은 내용 확인", body: "AI가 읽은 시급, 근무시간, 계약기간을 확인하고 다른 곳만 고쳐요." },
   { title: "결과와 요청 문장", body: "기준과 다른 조항, 근거 조문, 쉬운 설명과 사장님께 보낼 문장까지 받아요." },
 ];
+
+// 오늘이 속한 해의 최저시급 안내. 하루 단위로 다시 만들어서, 해가 바뀌면 다시 배포하지 않아도 새해 금액이 나온다.
+async function MinWageNotice() {
+  "use cache";
+  cacheLife("days");
+  return minWageNotice(new Date());
+}
 
 export default function LandingPage() {
   return (
@@ -64,15 +71,15 @@ export default function LandingPage() {
               <span className="text-blue-600">30초만 확인하세요</span>
             </h1>
             <p className="mt-4 text-lead text-zinc-600">
-              {LATEST_MIN_WAGE_YEAR}년 최저시급은 {formatWon(MIN_WAGE_BY_YEAR[LATEST_MIN_WAGE_YEAR])}이에요. 계약서 사진
+              <MinWageNotice /> 계약서 사진
               한 장이면 최저임금, 수습 감액, 주휴수당, 휴게시간, 필수 항목이 법 기준에 맞는지 알려드리고, 다른 곳이
               있으면 사장님께 보낼 문장도 써 드려요.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <CtaPrimary href="/check">내 계약서 확인하기</CtaPrimary>
-              <CtaSecondary href="/check?sample=1">회원가입 없이 샘플로 체험하기</CtaSecondary>
+              <CtaSecondary href="/check/sample">회원가입 없이 샘플로 체험하기</CtaSecondary>
             </div>
-            <p className="mt-4 text-body-sm text-zinc-500">회원가입 없음 · 사진 저장 안 함 · 무료</p>
+            <p className="mt-4 text-body-sm text-zinc-500">사진은 저장하지 않아요 · 무료</p>
           </div>
 
           <PhoneMock />
@@ -170,9 +177,10 @@ export default function LandingPage() {
           <div className="mt-4 grid gap-4 squircle-3xl bg-zinc-900 p-6 text-white md:grid-cols-[auto_1fr] md:items-center md:p-8">
             <Lock aria-hidden className="size-7 text-zinc-300" strokeWidth={1.75} />
             <div>
-              <h3 className="text-title3">개인정보는 남기지 않아요</h3>
+              <h3 className="text-title3">사진은 남기지 않아요</h3>
               <p className="mt-2 text-body-sm text-zinc-300">
-                회원가입이 없고, 사진과 결과를 저장하지 않아요. 주민등록번호와 계좌번호는 올리기 전에 직접 가려요.{" "}
+                로그인 없이 쓸 수 있고, 사진은 저장하지 않아요. 결과는 로그인하고 직접 저장할 때만 남고, 언제든 지울 수
+                있어요. 주민등록번호와 계좌번호는 올리기 전에 직접 가려요.{" "}
                 <Link href="/privacy" className="underline underline-offset-2">
                   개인정보 처리 안내
                 </Link>
@@ -203,7 +211,7 @@ export default function LandingPage() {
               />
             </Link>
             <Link
-              href="/check?sample=1"
+              href="/check/sample"
               className="group flex flex-1 items-center justify-center gap-1 squircle-2xl bg-blue-500 px-5 py-4 text-headline text-white ring-1 ring-white/30 transition duration-200 ease-out hover:-translate-y-1 hover:bg-blue-400 hover:ring-white/70 hover:shadow-xl hover:shadow-blue-900/30 focus-visible:-translate-y-1 active:translate-y-0 active:scale-[0.98]"
             >
               회원가입 없이 샘플로 체험하기
