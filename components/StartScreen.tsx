@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { PrimaryButton } from "./ui";
 
 const STEPS = [
@@ -19,22 +19,8 @@ type Props = {
 };
 
 export function StartScreen({ onStart, onNoContract }: Props) {
+  // 해외 전송·직접 가리기 안내에 체크해야 '내 계약서 확인하기'가 켜진다
   const [agreed, setAgreed] = useState(false);
-  // 동의하지 않고 '내 계약서 확인하기'를 눌렀는지. 버튼을 회색으로 막으면 고장 난 것처럼 보여서,
-  // 늘 누를 수 있게 두고 동의 칸으로 데려가 알려준다
-  const [askedConsent, setAskedConsent] = useState(false);
-  const consentBox = useRef<HTMLInputElement>(null);
-  const needConsent = askedConsent && !agreed;
-
-  function start() {
-    if (agreed) {
-      onStart();
-      return;
-    }
-    setAskedConsent(true);
-    consentBox.current?.closest("label")?.scrollIntoView({ behavior: "smooth", block: "center" });
-    consentBox.current?.focus({ preventScroll: true });
-  }
 
   return (
     <div className="flex flex-1 flex-col">
@@ -68,15 +54,10 @@ export function StartScreen({ onStart, onNoContract }: Props) {
           ))}
         </ol>
 
-        <label
-          className={`mt-8 flex gap-3 squircle-2xl p-4 text-body-sm text-zinc-700 transition ${
-            needConsent ? "bg-amber-50 ring-2 ring-amber-400" : "bg-zinc-50 ring-1 ring-zinc-200"
-          }`}
-        >
+        <label className="mt-8 flex gap-3 squircle-2xl bg-zinc-50 p-4 text-body-sm text-zinc-700 ring-1 ring-zinc-200">
           {/* 체크박스를 첫 줄 가운데에 맞춘다 (1lh = 한 줄 높이라 행간이 바뀌어도 맞는다) */}
           <span className="flex h-[1lh] shrink-0 items-center">
             <input
-              ref={consentBox}
               type="checkbox"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
@@ -92,15 +73,10 @@ export function StartScreen({ onStart, onNoContract }: Props) {
             </Link>
           </span>
         </label>
-        {needConsent && (
-          <p role="alert" className="mt-2 text-body-sm text-amber-800">
-            위 내용을 읽고 체크해 주시면 계약서를 올릴 수 있어요.
-          </p>
-        )}
       </div>
 
       <div className="space-y-3 pt-6 pb-4">
-        <PrimaryButton arrow onClick={start}>
+        <PrimaryButton arrow disabled={!agreed} onClick={onStart}>
           내 계약서 확인하기
         </PrimaryButton>
         <button onClick={onNoContract} className="min-h-11 w-full text-body-sm text-zinc-500 underline underline-offset-2">
