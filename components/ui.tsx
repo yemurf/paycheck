@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, ChevronLeft } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -156,17 +157,21 @@ export function Disclaimer({ note }: { note?: ReactNode }) {
 }
 
 // 뒤로 버튼은 아이콘(24px)은 그대로 두고 누르는 영역만 44px. 음수 여백으로 제목 줄 높이(28px)를 넘지 않게 한다.
-export function ScreenHeader({ title, onBack }: { title: string; onBack?: () => void }) {
+// backHref: 앱 밖 페이지(/my 등)에서 버튼 대신 링크로 돌아갈 곳
+export function ScreenHeader({ title, onBack, backHref }: { title: string; onBack?: () => void; backHref?: string }) {
+  const backClass =
+    "-my-2 -ml-3 flex size-11 shrink-0 items-center justify-center rounded-xl text-zinc-600 active:bg-zinc-100";
   return (
     <header className="mb-6 flex items-center gap-1">
       {onBack && (
-        <button
-          onClick={onBack}
-          aria-label="뒤로"
-          className="-my-2 -ml-3 flex size-11 shrink-0 items-center justify-center squircle-xl text-zinc-600 active:bg-zinc-100"
-        >
+        <button onClick={onBack} aria-label="뒤로" className={backClass}>
           <ChevronLeft aria-hidden className="size-6" />
         </button>
+      )}
+      {!onBack && backHref && (
+        <Link href={backHref} aria-label="뒤로" className={backClass}>
+          <ChevronLeft aria-hidden className="size-6" />
+        </Link>
       )}
       <h1 className="text-title2">{title}</h1>
     </header>

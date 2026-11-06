@@ -5,6 +5,8 @@ import { useState } from "react";
 import type { CheckResult, RuleResult, Status } from "@/rules";
 import { formatWon } from "@/rules/helpers";
 import { RULE_ICON } from "./rule-icons";
+import { SaveCard } from "./SaveCard";
+import type { SaveInput } from "./saved-results-api";
 import { CopyMessage, Disclaimer, ScreenHeader, SecondaryButton } from "./ui";
 
 const STATUS_STYLE: Record<Status, { label: string; badge: string; card: string; count: string }> = {
@@ -36,13 +38,14 @@ function koreanDate(iso: string): string {
 
 type Props = {
   result: CheckResult;
+  saveInput: SaveInput | null; // 이 결과를 낸 입력값. 저장할 때 보낸다
   canAddPhoto: boolean;
   onAddPhoto: () => void;
   onEdit: () => void;
   onRestart: () => void;
 };
 
-export function ResultScreen({ result, canAddPhoto, onAddPhoto, onEdit, onRestart }: Props) {
+export function ResultScreen({ result, saveInput, canAddPhoto, onAddPhoto, onEdit, onRestart }: Props) {
   const count = (s: Status) => result.results.filter((r) => r.status === s).length;
   const problems = count("problem");
   const checks = count("check");
@@ -83,18 +86,24 @@ export function ResultScreen({ result, canAddPhoto, onAddPhoto, onEdit, onRestar
         ))}
       </ul>
 
+      {saveInput && (
+        <div className="mt-8">
+          <SaveCard input={saveInput} />
+        </div>
+      )}
+
       <div className="mt-8 space-y-3">
         {/* 이 화면의 주된 행동은 카드 안의 '문장 복사하기'라서, 아래 두 버튼은 같은 무게로 둔다 */}
         <SecondaryButton onClick={onEdit}>입력한 내용 고치기</SecondaryButton>
         <SecondaryButton onClick={onRestart}>다른 계약서 확인하기</SecondaryButton>
       </div>
 
-      {/* 이 결과를 판정한 기준 (점검 응답의 ruleset, rules/version.ts). 줄은 · 에서만 바뀌게 항목마다 묶는다 */}
+      {/* 이 결과를 판정한 기준 (점검 응답의 ruleset, rules/version.ts). 줄은 · 에서만 바뀌게 항목마다 묶는다.
+          규칙 버전 번호(ruleset.version)는 사용자에게 의미가 없어 보여주지 않는다. 응답과 저장 결과에는 남아 있다 */}
       <Disclaimer
         note={[
           `${result.ruleset.minWageYears.to}년 최저시급까지 반영`,
           `법령 ${koreanDate(result.ruleset.lawsCheckedOn)} 확인`,
-          `기준 ${result.ruleset.version}`,
         ].map((part, i) => (
           <span key={part}>
             {i > 0 && " · "}

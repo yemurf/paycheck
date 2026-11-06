@@ -1,14 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 // 카카오 로그인 영역. 로그인은 선택 기능이라, 이 영역이 없어도 점검 흐름은 그대로 돌아간다.
 // 서버: GET /api/auth/me(로그인 여부), GET /api/auth/kakao/login?next=(카카오로 이동), POST /api/auth/logout
 
-type User = { id: string; name: string | null };
-type AuthState = { status: "loading" } | { status: "ready"; user: User | null };
+export type User = { id: string; name: string | null };
+export type AuthState = { status: "loading" } | { status: "ready"; user: User | null };
 
-function useAuth(): AuthState {
+export function useAuth(): AuthState {
   const [state, setState] = useState<AuthState>({ status: "loading" });
   useEffect(() => {
     let alive = true;
@@ -31,10 +32,12 @@ function useAuth(): AuthState {
 // 카카오 로그인 디자인 가이드: 배경 #FEE500, 심볼 #000000, 레이블 #000000 85%, 모서리 12px,
 // 레이블 높이는 버튼 높이의 1/3 이하(44px 버튼에 15px 글씨), OS 기본 서체, 심볼 모양·비율·색 변경 금지.
 // 카카오 화면으로 이동해야 하므로 fetch가 아니라 일반 링크로 연다.
-export function KakaoLoginButton({ next }: { next: string }) {
+// onBeforeLeave: 카카오로 떠나기 직전에 할 일 (예: 저장할 결과를 잠시 맡겨 두기)
+export function KakaoLoginButton({ next, onBeforeLeave }: { next: string; onBeforeLeave?: () => void }) {
   return (
     <a
       href={`/api/auth/kakao/login?next=${encodeURIComponent(next)}`}
+      onClick={onBeforeLeave}
       className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-[12px] bg-[#FEE500] px-4 font-[system-ui,-apple-system,BlinkMacSystemFont,Roboto,sans-serif] text-[15px] leading-none font-semibold text-black/85 transition active:brightness-95"
     >
       <KakaoSymbol />
@@ -72,7 +75,16 @@ function LogoutButton() {
 }
 
 // header: 랜딩 헤더 오른쪽. inline: /check 첫 화면 아래쪽(눈에 덜 띄게, 가운데 정렬)
-export function AuthArea({ next, variant }: { next: string; variant: "header" | "inline" }) {
+// showMyLink: 로그인 후 '내 계약서'(/my) 링크. /my 화면 안에서는 끈다.
+export function AuthArea({
+  next,
+  variant,
+  showMyLink = true,
+}: {
+  next: string;
+  variant: "header" | "inline";
+  showMyLink?: boolean;
+}) {
   const auth = useAuth();
   const align = variant === "header" ? "justify-end" : "justify-center";
 
@@ -119,6 +131,14 @@ export function AuthArea({ next, variant }: { next: string; variant: "header" | 
           "로그인됨"
         )}
       </span>
+      {showMyLink && (
+        <Link
+          href="/my"
+          className="inline-flex min-h-11 shrink-0 items-center px-2 text-body-sm font-semibold text-blue-700 active:text-blue-800"
+        >
+          내 계약서
+        </Link>
+      )}
       <LogoutButton />
     </div>
   );
@@ -131,7 +151,8 @@ const LOGIN_MESSAGE: Record<string, string> = {
 
 // 카카오에서 돌아올 때 붙는 ?login=failed|cancelled 안내. 4초 동안 보여주고 사라지며,
 // 새로고침해도 다시 뜨지 않게 주소에서 login만 지운다(다른 파라미터와 #은 그대로).
-export function LoginNotice() {
+// onFailed: 로그인이 실패·취소됐을 때 할 일 (예: 맡겨 둔 저장 내용 지우기). 주소를 지우기 전에 부른다.
+export function LoginNotice({ onFailed }: { onFailed?: () => void } = {}) {
   const [message, setMessage] = useState<string | null>(null);
 
   // 주소를 읽고 바로 지운다. 개발 모드에서 effect가 두 번 돌면 두 번째에는 login이 없으니,
@@ -140,9 +161,12 @@ export function LoginNotice() {
     const url = new URL(window.location.href);
     if (!url.searchParams.has("login")) return;
     const text = LOGIN_MESSAGE[url.searchParams.get("login") ?? ""];
+    if (text) onFailed?.();
     url.searchParams.delete("login");
     history.replaceState(history.state, "", url.pathname + url.search + url.hash);
     if (text) setTimeout(() => setMessage(text), 0);
+    // 처음 한 번만 본다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

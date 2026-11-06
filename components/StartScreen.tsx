@@ -11,7 +11,7 @@ const STEPS = [
   { title: "점검 결과 보기", body: "확인이 필요한 조항과 사장님께 보낼 문장까지 알려드려요" },
 ];
 
-const BADGES = ["회원가입 없음", "사진 저장 안 함", "30초 안에 결과"];
+const BADGES = ["로그인 없이 바로", "사진 저장 안 함", "30초 안에 결과"];
 
 type Props = {
   onStart: () => void;
@@ -66,8 +66,8 @@ export function StartScreen({ onStart, onSample, onNoContract, sampleLoading }: 
             />
           </span>
           <span>
-            사진은 분석을 위해 해외 AI 서비스(OpenRouter를 거쳐 Claude AI)로 전송돼요. 페이체크는 사진과 결과를
-            저장하지 않아요. 주민등록번호와 계좌번호는 <strong className="rounded bg-red-200 box-decoration-clone px-1 text-zinc-900">올리기 전에 직접 가려</strong>{" "}
+            사진은 분석을 위해 해외 AI 서비스(OpenRouter를 거쳐 Claude AI)로 전송돼요. 페이체크는 사진을 저장하지
+            않아요. 주민등록번호와 계좌번호는 <strong className="rounded bg-red-200 box-decoration-clone px-1 text-zinc-900">올리기 전에 직접 가려</strong>{" "}
             주세요.{" "}
             <Link href="/privacy" className="underline underline-offset-2">
               자세히 보기

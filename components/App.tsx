@@ -7,17 +7,20 @@ import type { CheckResult } from "@/rules";
 import { ConfirmScreen, type ConfirmState } from "./ConfirmScreen";
 import { NoContractScreen } from "./NoContractScreen";
 import { ResultScreen } from "./ResultScreen";
+import type { SaveInput } from "./saved-results-api";
 import { StartScreen } from "./StartScreen";
 import { UploadScreen } from "./UploadScreen";
 
-type Step = "start" | "no-contract" | "upload" | "confirm" | "result";
+// sample-loading: 샘플 체험 주소(/check/sample)로 들어와 샘플 사진을 준비하는 동안. 첫 화면이 스쳐 보이지 않게 아무것도 그리지 않는다
+type Step = "sample-loading" | "start" | "no-contract" | "upload" | "confirm" | "result";
 
 // 모든 상태는 이 컴포넌트 메모리에만 둔다. 저장하지 않고, 에러가 나도 입력값과 사진은 남는다 (PRD 7장).
-export function App() {
-  const [step, setStep] = useState<Step>("start");
+export function App({ startWithSample = false }: { startWithSample?: boolean }) {
+  const [step, setStep] = useState<Step>(startWithSample ? "sample-loading" : "start");
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
   const [result, setResult] = useState<CheckResult | null>(null);
+  const [checkedInput, setCheckedInput] = useState<SaveInput | null>(null); // 이 결과를 낸 입력값 (저장용)
   const [isSample, setIsSample] = useState(false);
   const [sampleLoading, setSampleLoading] = useState(false);
 
@@ -28,6 +31,7 @@ export function App() {
 
   // 각 화면의 ‹ 버튼이 가는 곳. 폰의 뒤로가기도 똑같이 움직인다. null이면 앱을 떠난다.
   const backTarget: Record<Step, Step | null> = {
+    "sample-loading": null,
     start: null,
     "no-contract": "start",
     upload: result ? "result" : "start",
@@ -58,9 +62,12 @@ export function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  // 랜딩 페이지의 "회원가입 없이 샘플로 체험하기"(/check?sample=1)로 들어오면 샘플을 올린 채 시작한다
+  // 샘플 체험 주소(/check/sample)로 들어오면 샘플을 올린 채 시작한다.
+  // 예전 주소(/check?sample=1)로 들어와도 같은 흐름이지만, 첫 화면이 잠깐 보인다.
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("sample") === "1") {
+    if (startWithSample) {
+      startSample();
+    } else if (new URLSearchParams(window.location.search).get("sample") === "1") {
       history.replaceState(history.state, "", "/check");
       startSample();
     }
@@ -80,6 +87,7 @@ export function App() {
     setIsSample(sample);
     setConfirm(null);
     setResult(null);
+    setCheckedInput(null);
   }
 
   function restart() {
@@ -100,6 +108,7 @@ export function App() {
       go("upload");
     } catch (e) {
       console.error("sample load failed", e);
+      if (stepRef.current === "sample-loading") go("start"); // 샘플을 못 불러오면 첫 화면으로
     } finally {
       setSampleLoading(false);
     }
@@ -131,8 +140,9 @@ export function App() {
           <ConfirmScreen
             state={confirm}
             onChange={setConfirm}
-            onChecked={(r) => {
+            onChecked={(r, input) => {
               setResult(r);
+              setCheckedInput(input);
               go("result");
             }}
             onBack={() => go("upload")}
@@ -141,6 +151,7 @@ export function App() {
         {step === "result" && result && (
           <ResultScreen
             result={result}
+            saveInput={isSample ? null : checkedInput /* 샘플 계약서는 저장할 이유가 없으니 저장 카드(카카오 로그인 안내)를 띄우지 않는다 */}
             canAddPhoto={!isSample && photos.length < 2}
             onAddPhoto={() => go("upload")}
             onEdit={() => go("confirm")}

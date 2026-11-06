@@ -19,6 +19,7 @@ import { ApiError, checkContract } from "@/lib/api-client";
 import type { ContractExtraction } from "@/lib/contract-schema";
 import type { CheckResult } from "@/rules";
 import { formatWon } from "@/rules/helpers";
+import type { SaveInput } from "./saved-results-api";
 import { ErrorBox, PrimaryButton, ScreenHeader, WorkingScreen } from "./ui";
 
 const CHECK_STEPS = [
@@ -38,9 +39,20 @@ export type ConfirmState = {
 type Props = {
   state: ConfirmState;
   onChange: (state: ConfirmState) => void;
-  onChecked: (result: CheckResult) => void;
+  // input: 이 결과를 낸 입력값. 결과를 저장할 때 그대로 보낸다 (확인 화면 값이 나중에 바뀌어도 결과와 어긋나지 않게)
+  onChecked: (result: CheckResult, input: SaveInput) => void;
   onBack: () => void;
 };
+
+// 점검(와 저장)에 보내는 값. 요일·시간이 정해진 근무면 주 근로시간은 서버가 일정으로 계산하니 null.
+export function checkInputOf(state: ConfirmState): SaveInput {
+  const fixed = state.contract.schedule_fixed !== false;
+  return {
+    contract: state.contract,
+    weeklyHours: fixed ? null : toNumber(state.weeklyHours),
+    minor: state.minor === true,
+  };
+}
 
 const DAYS = ["월", "화", "수", "목", "금", "토", "일"] as const;
 type Schedule = ContractExtraction["schedule"];
@@ -172,8 +184,8 @@ export function ConfirmScreen({ state, onChange, onChecked, onBack }: Props) {
     setLoading(true);
     setError(null);
     try {
-      const weeklyHours = fixed ? null : toNumber(state.weeklyHours);
-      onChecked(await checkContract(c, weeklyHours, state.minor === true));
+      const input = checkInputOf(state);
+      onChecked(await checkContract(input.contract, input.weeklyHours, input.minor), input);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "잠시 후 다시 시도해 주세요.");
     } finally {
