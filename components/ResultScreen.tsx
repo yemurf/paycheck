@@ -44,6 +44,8 @@ type Props = {
   onEdit: () => void;
   onRestart: () => void;
   restartLabel?: string; // 샘플 체험이면 "내 계약서로 확인하기"
+  // 아래 첫 번째 버튼. 없으면 "입력한 내용 고치기"(onEdit). 샘플 체험이면 "다른 샘플 보기"
+  firstAction?: { label: string; onClick: () => void };
 };
 
 export function ResultScreen({
@@ -54,6 +56,7 @@ export function ResultScreen({
   onEdit,
   onRestart,
   restartLabel = "다른 계약서 확인하기",
+  firstAction,
 }: Props) {
   const count = (s: Status) => result.results.filter((r) => r.status === s).length;
   const problems = count("problem");
@@ -103,7 +106,7 @@ export function ResultScreen({
 
       <div className="mt-8 space-y-3">
         {/* 이 화면의 주된 행동은 카드 안의 '문장 복사하기'라서, 아래 두 버튼은 같은 무게로 둔다 */}
-        <SecondaryButton onClick={onEdit}>입력한 내용 고치기</SecondaryButton>
+        <SecondaryButton onClick={firstAction?.onClick ?? onEdit}>{firstAction?.label ?? "입력한 내용 고치기"}</SecondaryButton>
         <SecondaryButton onClick={onRestart}>{restartLabel}</SecondaryButton>
       </div>
 

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { PrimaryButton, SecondaryButton } from "./ui";
+import { useRef, useState } from "react";
+import { PrimaryButton } from "./ui";
 
 const STEPS = [
   { title: "가린 사진 올리기", body: "주민등록번호·계좌번호를 가린 계약서 사진을 골라요" },
@@ -12,15 +12,29 @@ const STEPS = [
 
 const BADGES = ["로그인 없이 바로", "사진 저장 안 함", "30초 안에 결과"];
 
+// /check 첫 화면은 "내 계약서" 전용이다. 샘플 체험은 랜딩 버튼과 /check/sample로만 들어간다.
 type Props = {
   onStart: () => void;
-  onSample: () => void;
   onNoContract: () => void;
-  sampleLoading: boolean;
 };
 
-export function StartScreen({ onStart, onSample, onNoContract, sampleLoading }: Props) {
+export function StartScreen({ onStart, onNoContract }: Props) {
   const [agreed, setAgreed] = useState(false);
+  // 동의하지 않고 '내 계약서 확인하기'를 눌렀는지. 버튼을 회색으로 막으면 고장 난 것처럼 보여서,
+  // 늘 누를 수 있게 두고 동의 칸으로 데려가 알려준다
+  const [askedConsent, setAskedConsent] = useState(false);
+  const consentBox = useRef<HTMLInputElement>(null);
+  const needConsent = askedConsent && !agreed;
+
+  function start() {
+    if (agreed) {
+      onStart();
+      return;
+    }
+    setAskedConsent(true);
+    consentBox.current?.closest("label")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    consentBox.current?.focus({ preventScroll: true });
+  }
 
   return (
     <div className="flex flex-1 flex-col">
@@ -54,10 +68,15 @@ export function StartScreen({ onStart, onSample, onNoContract, sampleLoading }: 
           ))}
         </ol>
 
-        <label className="mt-8 flex gap-3 squircle-2xl bg-zinc-50 p-4 text-body-sm text-zinc-700 ring-1 ring-zinc-200">
+        <label
+          className={`mt-8 flex gap-3 squircle-2xl p-4 text-body-sm text-zinc-700 transition ${
+            needConsent ? "bg-amber-50 ring-2 ring-amber-400" : "bg-zinc-50 ring-1 ring-zinc-200"
+          }`}
+        >
           {/* 체크박스를 첫 줄 가운데에 맞춘다 (1lh = 한 줄 높이라 행간이 바뀌어도 맞는다) */}
           <span className="flex h-[1lh] shrink-0 items-center">
             <input
+              ref={consentBox}
               type="checkbox"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
@@ -73,15 +92,17 @@ export function StartScreen({ onStart, onSample, onNoContract, sampleLoading }: 
             </Link>
           </span>
         </label>
+        {needConsent && (
+          <p role="alert" className="mt-2 text-body-sm text-amber-800">
+            위 내용을 읽고 체크해 주시면 계약서를 올릴 수 있어요.
+          </p>
+        )}
       </div>
 
       <div className="space-y-3 pt-6 pb-4">
-        <PrimaryButton arrow disabled={!agreed} onClick={onStart}>
+        <PrimaryButton arrow onClick={start}>
           내 계약서 확인하기
         </PrimaryButton>
-        <SecondaryButton disabled={sampleLoading} onClick={onSample}>
-          {sampleLoading ? "샘플을 불러오고 있어요…" : "회원가입 없이 샘플로 체험해 보기"}
-        </SecondaryButton>
         <button onClick={onNoContract} className="min-h-11 w-full text-body-sm text-zinc-500 underline underline-offset-2">
           계약서를 아직 못 받았어요
         </button>

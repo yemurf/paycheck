@@ -22,8 +22,8 @@ const EXTRACT_STEPS = [
 type Props = {
   photos: Photo[];
   isSample: boolean;
-  sampleId: SampleId; // 샘플 체험 중이면 지금 고른 샘플
-  onPickSample: (id: SampleId) => void;
+  sampleId: SampleId | null; // 샘플 체험 중에 고른 샘플. 아직 안 골랐으면 null
+  onPickSample: (id: SampleId | null) => void; // null이면 고른 것을 취소
   onPhotosChange: (photos: Photo[]) => void;
   onExtracted: (data: ContractExtraction) => void;
   onBack: () => void;
@@ -121,7 +121,7 @@ export function UploadScreen({ photos, isSample, sampleId, onPickSample, onPhoto
 
         {isSample && (
           // 사진을 누르면 고르고(오른쪽 위 체크), 아래 '크게 보기'를 누르면 확대한다
-          <ul role="radiogroup" aria-labelledby="sample-pick-title" className="mt-6 grid grid-cols-2 gap-3">
+          <ul role="group" aria-labelledby="sample-pick-title" className="mt-6 grid grid-cols-2 gap-3">
             {SAMPLES.map((s) => {
               const selected = s.id === sampleId;
               return (
@@ -130,10 +130,9 @@ export function UploadScreen({ photos, isSample, sampleId, onPickSample, onPhoto
                   <div className="relative">
                     <button
                       type="button"
-                      role="radio"
-                      aria-checked={selected}
+                      aria-pressed={selected}
                       aria-label={`${s.name} 계약서 고르기`}
-                      onClick={() => !selected && onPickSample(s.id)}
+                      onClick={() => onPickSample(selected ? null : s.id)}
                       className={`relative block w-full overflow-hidden squircle-xl transition active:scale-[0.98] ${
                         selected ? "ring-2 ring-blue-600" : "border border-zinc-200"
                       }`}
@@ -229,7 +228,7 @@ export function UploadScreen({ photos, isSample, sampleId, onPickSample, onPhoto
       <div className="mt-6 space-y-3 pb-4">
         {error && <ErrorBox>{error}</ErrorBox>}
         {notice && <p className="squircle-xl bg-zinc-100 px-4 py-3 text-body-sm text-zinc-700">{notice}</p>}
-        {photos.length === 0 ? (
+        {photos.length === 0 && !isSample ? (
           <PrimaryButton disabled={converting} onClick={() => input.current?.click()}>
             {converting ? "PDF를 여는 중이에요…" : "가린 사진이나 PDF 고르기"}
           </PrimaryButton>
@@ -247,7 +246,8 @@ export function UploadScreen({ photos, isSample, sampleId, onPickSample, onPhoto
               ) : (
                 <p className="text-center text-body-sm text-zinc-500">주민등록번호와 계좌번호가 가려졌는지 한 번 더 확인해 주세요.</p>
               ))}
-            <PrimaryButton arrow disabled={loading || converting} onClick={submit}>
+            {/* 샘플은 하나를 골라야(체크) 분석할 수 있다 */}
+            <PrimaryButton arrow disabled={loading || converting || photos.length === 0} onClick={submit}>
               분석하기
             </PrimaryButton>
             {!isSample && photos.length < MAX_PHOTOS && (

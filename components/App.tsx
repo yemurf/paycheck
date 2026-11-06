@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { ContractExtraction } from "@/lib/contract-schema";
 import { loadSamplePhotos, type Photo } from "@/lib/image";
-import { FIRST_SAMPLE, type SampleId } from "@/lib/samples";
+import type { SampleId } from "@/lib/samples";
 import type { CheckResult } from "@/rules";
 import { ConfirmScreen, type ConfirmState } from "./ConfirmScreen";
 import { NoContractScreen } from "./NoContractScreen";
@@ -13,20 +13,19 @@ import type { SaveInput } from "./saved-results-api";
 import { StartScreen } from "./StartScreen";
 import { UploadScreen } from "./UploadScreen";
 
-// sample-loading: 샘플 체험 주소(/check/sample)로 들어와 샘플 사진을 준비하는 동안. 첫 화면이 스쳐 보이지 않게 아무것도 그리지 않는다
-type Step = "sample-loading" | "start" | "no-contract" | "upload" | "confirm" | "result";
+type Step = "start" | "no-contract" | "upload" | "confirm" | "result";
 
 // 모든 상태는 이 컴포넌트 메모리에만 둔다. 저장하지 않고, 에러가 나도 입력값과 사진은 남는다 (PRD 7장).
 export function App({ startWithSample = false }: { startWithSample?: boolean }) {
-  const [step, setStep] = useState<Step>(startWithSample ? "sample-loading" : "start");
+  // 샘플 체험 주소(/check/sample)로 들어오면 바로 샘플 고르기(업로드 화면)부터. 아무것도 고르지 않은 채로 시작한다
+  const [step, setStep] = useState<Step>(startWithSample ? "upload" : "start");
   const router = useRouter();
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
   const [result, setResult] = useState<CheckResult | null>(null);
   const [checkedInput, setCheckedInput] = useState<SaveInput | null>(null); // 이 결과를 낸 입력값 (저장용)
-  const [isSample, setIsSample] = useState(false);
-  const [sampleId, setSampleId] = useState<SampleId>(FIRST_SAMPLE); // 샘플 체험 중이면 지금 고른 샘플
-  const [sampleLoading, setSampleLoading] = useState(false);
+  const [isSample, setIsSample] = useState(startWithSample);
+  const [sampleId, setSampleId] = useState<SampleId | null>(null); // 샘플 체험 중에 고른 샘플. 아직 안 골랐으면 null
 
   function go(next: Step) {
     setStep(next);
@@ -35,7 +34,6 @@ export function App({ startWithSample = false }: { startWithSample?: boolean }) 
 
   // 각 화면의 ‹ 버튼이 가는 곳. 폰의 뒤로가기도 똑같이 움직인다. null이면 앱을 떠난다.
   const backTarget: Record<Step, Step | null> = {
-    "sample-loading": null,
     start: null,
     "no-contract": "start",
     // 랜딩의 샘플 체험(/check/sample)으로 들어와 아직 결과를 안 봤으면 첫 화면(동의·로그인)을 거치지 않고 앱을 떠난다
@@ -65,18 +63,6 @@ export function App({ startWithSample = false }: { startWithSample?: boolean }) 
     }
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
-  }, []);
-
-  // 샘플 체험 주소(/check/sample)로 들어오면 샘플을 올린 채 시작한다.
-  // 예전 주소(/check?sample=1)로 들어와도 같은 흐름이지만, 첫 화면이 잠깐 보인다.
-  useEffect(() => {
-    if (startWithSample) {
-      startSample();
-    } else if (new URLSearchParams(window.location.search).get("sample") === "1") {
-      history.replaceState(history.state, "", "/check");
-      startSample();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- 처음 한 번만
   }, []);
 
   function onExtracted(contract: ContractExtraction) {
@@ -117,18 +103,19 @@ export function App({ startWithSample = false }: { startWithSample?: boolean }) 
     go("upload");
   }
 
-  // 심사위원처럼 계약서가 없는 사람도 끝까지 써볼 수 있게, 가상의 계약서를 올린 상태로 시작한다
-  async function startSample(id: SampleId = FIRST_SAMPLE) {
-    setSampleLoading(true);
+  // 샘플 고르기. 고르면 그 샘플 사진을 올리고, 고른 것을 다시 누르면(null) 비운다
+  async function pickSample(id: SampleId | null) {
+    if (id == null) {
+      reset([], true);
+      setSampleId(null);
+      return;
+    }
+    setSampleId(id);
     try {
       reset(await loadSamplePhotos(id), true);
-      setSampleId(id);
-      go("upload");
     } catch (e) {
       console.error("sample load failed", e);
-      if (stepRef.current === "sample-loading") go("start"); // 샘플을 못 불러오면 첫 화면으로
-    } finally {
-      setSampleLoading(false);
+      setSampleId(null);
     }
   }
 
@@ -137,12 +124,7 @@ export function App({ startWithSample = false }: { startWithSample?: boolean }) 
       {/* key가 바뀌면 화면이 새로 그려지면서 들어오는 애니메이션이 한 번 돈다 */}
       <div key={step} className="flex flex-1 animate-screen-in flex-col">
         {step === "start" && (
-          <StartScreen
-            onStart={startOwn}
-            onSample={() => startSample()}
-            onNoContract={() => go("no-contract")}
-            sampleLoading={sampleLoading}
-          />
+          <StartScreen onStart={startOwn} onNoContract={() => go("no-contract")} />
         )}
         {step === "no-contract" && <NoContractScreen onBack={() => go("start")} />}
         {step === "upload" && (
@@ -150,7 +132,7 @@ export function App({ startWithSample = false }: { startWithSample?: boolean }) 
             photos={photos}
             isSample={isSample}
             sampleId={sampleId}
-            onPickSample={startSample}
+            onPickSample={pickSample}
             onPhotosChange={setPhotos}
             onExtracted={onExtracted}
             onBack={() => {
@@ -181,6 +163,8 @@ export function App({ startWithSample = false }: { startWithSample?: boolean }) 
             onEdit={() => go("confirm")}
             onRestart={restart}
             restartLabel={isSample ? "내 계약서로 확인하기" : "다른 계약서 확인하기"}
+            // 샘플은 내 계약서가 아니라 고칠 이유가 없으니, 그 자리에서 다른 샘플을 고르게 한다
+            firstAction={isSample ? { label: "다른 샘플 보기", onClick: () => go("upload") } : undefined}
           />
         )}
       </div>
