@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, PenLine, Plus, X, ZoomIn } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, PenLine, Plus, X, ZoomIn } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ApiError, extractContract } from "@/lib/api-client";
 import type { ContractExtraction } from "@/lib/contract-schema";
@@ -32,7 +32,8 @@ type Props = {
 export function UploadScreen({ photos, isSample, sampleId, onPickSample, onPhotosChange, onExtracted, onBack }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [viewing, setViewing] = useState<string | null>(null); // 크게 볼 사진 주소
+  // 크게 볼 사진들과 처음 보여줄 장. 여러 장이면 넘겨 볼 수 있다
+  const [viewing, setViewing] = useState<{ srcs: string[]; start: number } | null>(null);
   const [converting, setConverting] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
@@ -94,7 +95,7 @@ export function UploadScreen({ photos, isSample, sampleId, onPickSample, onPhoto
 
   return (
     <div className="flex flex-1 flex-col">
-      {viewing && <PhotoViewer src={viewing} onClose={() => setViewing(null)} />}
+      {viewing && <PhotoViewer srcs={viewing.srcs} start={viewing.start} onClose={() => setViewing(null)} />}
       {loading && <WorkingScreen title="계약서를 읽고 있어요" steps={EXTRACT_STEPS} expectedSeconds={18} />}
       <ScreenHeader title="계약서 사진 올리기" onBack={loading ? undefined : onBack} />
 
@@ -156,7 +157,7 @@ export function UploadScreen({ photos, isSample, sampleId, onPickSample, onPhoto
                     )}
                     <button
                       type="button"
-                      onClick={() => setViewing(s.pages[0])}
+                      onClick={() => setViewing({ srcs: s.pages, start: 0 })}
                       aria-label={`${s.name} 계약서 크게 보기`}
                       className="absolute inset-x-0 bottom-0 flex min-h-11 items-end justify-center gap-1 rounded-b-xl bg-gradient-to-t from-black/60 to-transparent pb-2 text-caption font-semibold text-white"
                     >
@@ -178,7 +179,7 @@ export function UploadScreen({ photos, isSample, sampleId, onPickSample, onPhoto
             {photos.map((p, i) => (
               <li key={p.id} className="relative animate-screen-in">
                 <button
-                  onClick={() => setViewing(p.src)}
+                  onClick={() => setViewing({ srcs: photos.map((x) => x.src), start: i })}
                   aria-label={`계약서 ${i + 1}장 크게 보기`}
                   className="relative block w-full overflow-hidden squircle-xl border border-zinc-200 transition active:scale-[0.98]"
                 >
@@ -263,8 +264,14 @@ export function UploadScreen({ photos, isSample, sampleId, onPickSample, onPhoto
 }
 
 // 사진을 전체 화면으로 본다. 확대하면 가로로 넓어지고, 손가락으로 밀어서 구석까지 볼 수 있다.
-function PhotoViewer({ src, onClose }: { src: string; onClose: () => void }) {
+function PhotoViewer({ srcs, start, onClose }: { srcs: string[]; start: number; onClose: () => void }) {
   const [zoomed, setZoomed] = useState(false);
+  const [page, setPage] = useState(start);
+  const src = srcs[page];
+  const turn = (to: number) => {
+    setPage(to);
+    setZoomed(false); // 다른 장으로 넘기면 화면에 맞춘 상태로 본다
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -308,9 +315,35 @@ function PhotoViewer({ src, onClose }: { src: string; onClose: () => void }) {
           className={zoomed ? "w-[220%] max-w-none" : "mx-auto h-full w-full object-contain"}
         />
       </div>
-      <p className="px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] text-center text-caption text-white/70">
-        {zoomed ? "손가락으로 밀어서 볼 수 있어요" : "두 번 눌러도 확대돼요"}
-      </p>
+      <div className="px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        {srcs.length > 1 && (
+          // 여러 장이면 이전·다음 장으로 넘긴다
+          <div className="mb-2 flex items-center justify-between">
+            <button
+              onClick={() => turn(page - 1)}
+              disabled={page === 0}
+              aria-label="이전 장"
+              className="flex size-11 items-center justify-center rounded-full bg-white/15 text-white active:bg-white/25 disabled:opacity-30"
+            >
+              <ChevronLeft aria-hidden className="size-5" />
+            </button>
+            <p className="text-body-sm font-semibold text-white">
+              {page + 1} / {srcs.length}장
+            </p>
+            <button
+              onClick={() => turn(page + 1)}
+              disabled={page === srcs.length - 1}
+              aria-label="다음 장"
+              className="flex size-11 items-center justify-center rounded-full bg-white/15 text-white active:bg-white/25 disabled:opacity-30"
+            >
+              <ChevronRight aria-hidden className="size-5" />
+            </button>
+          </div>
+        )}
+        <p className="text-center text-caption text-white/70">
+          {zoomed ? "손가락으로 밀어서 볼 수 있어요" : "두 번 눌러도 확대돼요"}
+        </p>
+      </div>
     </div>
   );
 }
